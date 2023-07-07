@@ -1,0 +1,1 @@
+def b(): print("a")
