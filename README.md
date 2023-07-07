@@ -5,3 +5,4 @@
 <pre><code>async def test(send_func: Callable, group_id, sender_id, sender_name, message):>
     await send_func(group_id, message)
 </code></pre>
+其中 send_func 为发信函数，您可进行重写操作。原 send_func 为 script.py 里的 sends 函数
