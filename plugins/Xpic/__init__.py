@@ -1,8 +1,9 @@
 from .main import *
 
 
-def test():
-    print("test")
-
-
-__dict__ = {"test": test}
+func_dict = {
+    "搜图": [
+        get_pic,
+        "on_keyword"
+    ]
+}

@@ -4,14 +4,15 @@
 """
 
 import os
-import sys
 import importlib
-from script import *
+from log import *
 
-os.chdir('./plugins')
+
+os.chdir("./plugins")
+
 sys.path.append(os.getcwd())
-plugins = os.listdir()[1:-2]
-print(plugins)
+plugins = [x for x in os.listdir() if not (x.startswith('__') or x.endswith('.py'))]
+logger.opt(colors=True).debug(plugins)
 
 
 modules = []
@@ -29,6 +30,6 @@ for module in modules:
         logger.opt(colors=True).error(f'<r>The format of plugin "{module.__name__}" '
                                       'is incorrect</r>')
 
+logger.opt(colors=True).debug(func_dicts)
 
-print(func_dicts)
 os.chdir('..')
