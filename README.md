@@ -6,4 +6,14 @@
     ...
     await send_func(group_id, message)
 </code></pre>
-其中 send_func 为发信函数，您可自行编写。原 send_func 为 script.py 里的 sends 函数
+其中 send_func 为发信函数，您可自行编写。默认 send_func 为 script.py 里的 sends 函数
+##命令绑定
+<pre><code>
+    func_dict = {
+        "触发器名称": [
+            对应函数名,
+            "触发方式"
+        ]
+    }
+</code></pre>
+其中触发方式包括 <code>on_command</code> <code>on_keyword</code>
