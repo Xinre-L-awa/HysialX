@@ -1,3 +1,9 @@
+"""
+@FrameWorkName: HysialX
+@FrameWorkAuthor: Xinre<ancdngding@qq.com>
+@FrameWorkLicense: MIT
+@FrameWorkAddress: https://github.com/Xinre-L-awa/HysialX
+"""
 import re
 import json
 import time
