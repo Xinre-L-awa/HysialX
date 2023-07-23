@@ -6,4 +6,4 @@
     ...
     await send_func(group_id, message)
 </code></pre>
-其中 send_func 为发信函数，您可进行重写操作。原 send_func 为 script.py 里的 sends 函数
+其中 send_func 为发信函数，您可自行编写。原 send_func 为 script.py 里的 sends 函数
