@@ -8,7 +8,7 @@ class Bot:
     
     async def send(self, uid, message):
         try:
-            async with httpx.AsyncClient(base_url="http://39.107.60.77:570") as client:
+            async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
                 params = {
                     "group_id": uid,
                     "message": message,
