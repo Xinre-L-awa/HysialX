@@ -74,7 +74,6 @@ def display(group_id: str):
 
 def startHuaWeb():
     def _():
-        # app.run(host='0.0.0.0', port=5000, threaded=True, debug=False)
         pywsgi.WSGIServer(('', 5000), app, log=None).serve_forever()
     try:
         p = Thread(target=_)
