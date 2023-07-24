@@ -2,7 +2,7 @@
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
 # 插件编写
 _本框架提供了几个示例插件供参考_  
-本qq机器人框架插件应为标准python包, 且需至于<code>plugins</code>文件夹中
+本qq机器人框架插件应为标准python包, 且需置于<code>plugins</code>文件夹中
 
 插件函数需按以下模版进行编写
 <pre><code>async def test(bot: Bot, event: Event):
