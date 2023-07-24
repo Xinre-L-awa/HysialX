@@ -73,7 +73,7 @@ if __name__ == "__main__":
     logger.opt(colors=True).info("Trying to connect go-cqhttp...")
     try:
         ws = websocket.WebSocketApp(
-                "ws://39.107.60.77:8081/event",
+                "ws://127.0.0.1:8081/event",
                 on_message=handle
             )
         logger.opt(colors=True).success("Connected successfully!")
