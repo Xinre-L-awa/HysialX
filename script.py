@@ -1,55 +1,31 @@
 """
-本模块集合了所需的库和函数
+本模块集合了所需函数及变量
 """
 import os
 import yaml
-import httpx
 from log import *
-from typing import Callable, Dict
+from typing import Callable, Dict, List, Union
 
 
-def init():
+def init(check_files=True):
     logger.opt(colors=True).info("Hysial Bot is staring...")
-    logger.opt(colors=True).info("Checking config files...")
-    if not os.path.exists("GroupStatistics.json"):
-        logger.warning("GroupStatistics.json does not exist, and will be created.")
-        with open("GroupStatistics.json", 'w'):
-            logger.success("Created Successfully.")
-    with open("go-cqhttp/config.yml", encoding="utf-8", mode='r') as f:
-        data = yaml.safe_load(f)
-    logger.opt(colors=True).info(f"The current account is {data['account']['uin']}")
+    if check_files:
+        logger.opt(colors=True).info("Checking config files...")
+        if not os.path.exists("./go-cqhttp"):
+            logger.error("<r>No go-cqhttp founded!</r>")
+            logger.opt(colors=True).info("Closed")
+            exit(-1)
+        if not os.path.exists("GroupStatistics.json"):
+            logger.warning("GroupStatistics.json does not exist, and will be created.")
+            with open("GroupStatistics.json", 'w'):
+                logger.success("Created Successfully.")
+        with open("go-cqhttp/config.yml", encoding="utf-8", mode='r') as f:
+            data = yaml.safe_load(f)
+        logger.opt(colors=True).info(f"The current account is {data['account']['uin']}")
 
 
-class At:
-    def __str__(self): return "at"
-
-
-class Image:
-    def __str__(self): return "image"
-
-
-async def sends(uid, message):
-    try:
-        async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
-            params = {
-                "group_id": uid,
-                "message": message,
-            }
-            await client.post("/send_msg", params=params)
-        logger.opt(colors=True).success(f'发送消息 "{message}" 到群 {uid} 成功')
-    except:
-        logger.opt(colors=True).warning(f'发送消息 "{message}" 到群 {uid} 失败, 账号可能被风控')
-
-
-async def send(uid, message):
-    try:
-        async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
-            params = {
-                ""
-            }
-    except:
-        logger.opt(colors=True).warning(f'发送消息 "{message}" 到 {uid} 失败, 账号可能被风控')
-
-
-def CQFormat(type_):
-    pass
+def getExpectedFuncs(
+    func_dict: Dict[str, List[Union[Callable, str]]],
+    expected_type: str
+) -> List[Union[Callable, str]]:
+    return [[func_dict[k][0], func_dict[k][1]] for k in func_dict if expected_type in func_dict[k][1]]

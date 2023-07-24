@@ -19,6 +19,7 @@ modules = []
 for plugin in plugins:
     modules.append(importlib.import_module(plugin))
 
+
 func_dicts = {}
 for module in modules:
     try:

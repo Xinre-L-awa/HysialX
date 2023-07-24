@@ -6,134 +6,30 @@
 """
 import re
 import json
-import time
 import asyncio
 import websocket
 from script import *
-from flask import Flask
 
-init()
-import plugins
-
-app = Flask(__name__)
+init(False)
+from api import Bot, Event
+from plugins import func_dicts as func_dict
 
 
-def GroupMessageStatistics(group_id, sender_id, sender_name):
-    try:
-        with open("GroupStatistics.json", encoding="utf-8", mode='r') as f:
-            data = json.load(f)
-
-        if group_id not in data:
-            data[group_id] = {
-                sender_id: {
-                    "user_name": sender_name,
-                    "count": 1
-                }
-            }
-        if sender_id not in data[group_id]:
-            data[group_id][sender_id] = {
-                "user_name": sender_name,
-                "count": 1
-            }
-        else:
-            data[group_id][sender_id]["count"] += 1
-
-        with open("GroupStatistics.json", encoding="utf-8", mode='w') as f:
-            json.dump(data, f)
-    except:
-        data = {
-            group_id: {
-                sender_id: {
-                    "user_name": sender_name,
-                    "count": 1
-                }
-            }
-        }
-
-        with open("GroupStatistics.json", encoding="utf-8", mode='w') as f:
-            json.dump(data, f)
+autorunFuncs = getExpectedFuncs(func_dict, "AutoRun")
+onstartupFuncs = getExpectedFuncs(func_dict, "on_startup")
 
 
-async def PhimosisRanking(
-    send_func: Callable, 
-    group_id, 
-    *args
-):
-    t1 = time.time()
-    with open("GroupStatistics.json", encoding="utf-8", mode='r') as f:
-        data = json.load(f)
-    t2 = time.time()
-
-    data_ = dict(sorted(data[group_id].items(), key=lambda x: x[1]['count'], reverse=True))
-    i = 1
-    s = [f"看看你们多能聊！查个聊天记录都用了{t2 - t1}秒！"]
-    for k, v in data_.items():
-        s.append(f"{i}. {v['user_name']}共发送消息 {v['count']} 条")
-        i += 1
-    s = '\n'.join(s[:10])
-    logger.debug(s)
-    await send_func(group_id, s)
-
-
-async def DisplayCompleteRanking(
-    send_func: Callable, 
-    group_id, 
-    *args
-):
-    t1 = time.time()
-    with open("GroupStatistics.json", encoding="utf-8", mode='r') as f:
-        data = json.load(f)
-    t2 = time.time()
-
-    data_ = dict(sorted(data[group_id].items(), key=lambda x: x[1]['count'], reverse=True))
-    i = 1
-    s = [f"看看你们多能聊！查个聊天记录都用了{t2 - t1}秒！"]
-    for k, v in data_.items():
-        s.append(f"{i}. {v['user_name']}共发送消息 {v['count']} 条")
-        i += 1
-    s = '\n'.join(s)
-    logger.debug(s)
-    await send_func(group_id, s)
-
-
-func_dict = {
-    "话痨排行榜": [
-        PhimosisRanking, 
-        "on_command"
-    ],
-    "话痨排行榜 -a": [
-        DisplayCompleteRanking, 
-        "on_command"
-    ]
-}
-func_dict.update(plugins.func_dicts)
-
-
-async def DisplayAllFunc(
-    send_func: Callable, 
-    group_id, 
-    *args
-):
-    mes = []
-    for func_name, _ in func_dict.items():
-        mes.append(f"{func_name}")
-    await send_func(group_id, '\n'.join(mes))
-
-func_dict.update(
-    {
-        "菜单": [
-            DisplayAllFunc,
-            "on_command"
-        ]
-    }
-)
+for func in onstartupFuncs:
+    func[0]()
 
 
 @logger.catch
 def handle(ws, message):
     _ = json.loads(message)
-    post_type = _.get('post_type')
     message_type = _.get('message_type')
+    
+    bot = Bot(func_dict)
+    event = Event(_)
     
     if message_type == "group":
         group_id = str(_['group_id'])
@@ -143,42 +39,41 @@ def handle(ws, message):
         sender_message = _['message']
         logger.info(f"收到群 {group_id} 中来自 {sender_name}({sender_id}) 的消息: {sender_message}")
 
-        GroupMessageStatistics(
-            group_id, 
-            sender_id, 
-            sender_name
-        )
+        for func in autorunFuncs:
+            func[0](bot, event)
         
-        message_ = sender_message.split()[0]
-        if message_ in func_dict:
-            if func_dict[message_][1] == "on_keyword":
-                para_message = re.search(f"{message_}(.*)", sender_message).group(1)
-                logger.debug(para_message)
-                logger.info(len(para_message))
-                asyncio.run(func_dict[message_][0](
-                        sends,
-                        group_id,
-                        sender_id,
-                        sender_name,
-                        para_message
+        possible_func_name = sender_message.split()[0]
+        if possible_func_name in func_dict:
+            mode = func_dict[possible_func_name][1]
+            if mode == "on_keyword":
+                asyncio.run(
+                    func_dict[possible_func_name][0](
+                        bot,
+                        event
                     )
                 )
-            else:
-                asyncio.run(func_dict[sender_message][0](
-                        sends,
-                        group_id,
-                        sender_id,
-                        sender_name,
+            elif mode == "on_regex":
+                event.set_message(re.search(func_dict[possible_func_name][2], sender_message).group(1))
+                asyncio.run(
+                    func_dict[possible_func_name][0](
+                        bot,
+                        event
+                    )
+                )
+            elif mode == "on_command" and sender_message == possible_func_name:
+                asyncio.run(
+                    func_dict[sender_message][0](
+                        bot,
+                        event
                     )
                 )
 
 
 if __name__ == "__main__":
-
     logger.opt(colors=True).info("Trying to connect go-cqhttp...")
     try:
         ws = websocket.WebSocketApp(
-                "ws://127.0.0.1:8081/event",
+                "ws://39.107.60.77:8081/event",
                 on_message=handle
             )
         logger.opt(colors=True).success("Connected successfully!")
@@ -186,6 +81,3 @@ if __name__ == "__main__":
     except Exception as e:
         logger.opt(colors=True).error(e)
     logger.opt(colors=True).info("Closed")
-
-else:
-    logger.debug(func_dict)
