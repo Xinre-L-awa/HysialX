@@ -1,6 +1,7 @@
 # HysialX
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
 # 插件编写
+_本框架提供了几个示例插件供参考_  
 本qq机器人框架插件应为标准python包, 且需至于<code>plugins</code>文件夹中
 
 插件函数需按以下模版进行编写
@@ -21,7 +22,7 @@ func_dict = {
     ...
 }
 </code></pre>
-触发方式包括 <code>on_command</code> <code>on_keyword</code> <code>on_regex</code> <br>
+触发方式包括 <code>on_command</code> <code>on_keyword</code> <code>on_regex</code>  
 其中 <code>"正则表达式"</code> 仅当触发方式为 <code>on_regex</code>
 
 注: 推荐将该字典置于__init__.py中
