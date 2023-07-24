@@ -12,16 +12,14 @@ _本框架提供了几个示例插件供参考_
 
 >命令绑定
 为将命令与触发函数绑定，您需要按照以下模版进行编写
-<pre><code>
-func_dict = {
+<pre><code>func_dict = {
     "触发器名称": [
-        对应函数名,
-        "触发方式"
-        "正则表达式"
-    ],
-    ...
-}
-</code></pre>
+         对应函数名,
+         "触发方式",
+         "正则表达式"
+     ],
+     ...
+}</code></pre>
 触发方式包括 <code>on_command</code> <code>on_keyword</code> <code>on_regex</code>  
 其中 <code>"正则表达式"</code> 仅当触发方式为 <code>on_regex</code>
 
