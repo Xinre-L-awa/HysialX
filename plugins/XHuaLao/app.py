@@ -1,15 +1,11 @@
 import json, os
-import logging
-from threading import Thread
 from gevent import pywsgi
+from threading import Thread
 from flask import Flask, request, render_template
 
 from api import logger
 
 app = Flask(__name__)
-app.logger.disabled = True
-log = logging.getLogger("werkzeug")
-log.disabled = True
 
 def AddVisit():
     with open("./visits.json") as f:
