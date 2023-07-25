@@ -1,5 +1,8 @@
 # HysialX
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
+__本框架基于go-cqhttp运行__
+# go-cqhttp配置
+您需要在config.yml中添加
 # 插件编写
 _本框架提供了几个示例插件供参考_  
 本qq机器人框架插件应为标准python包, 且需置于<code>plugins</code>文件夹中
@@ -7,7 +10,7 @@ _本框架提供了几个示例插件供参考_
 插件函数需按以下模版进行编写
 <pre><code>async def test(bot: Bot, event: Event):
     ...
-    await bot.send(event.get_group_id, to_send_essage)
+    await bot.send(event.get_group_id, to_send_message)
 </code></pre>
 
 >命令绑定
