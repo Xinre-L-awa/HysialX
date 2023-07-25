@@ -21,6 +21,6 @@ _本框架提供了几个示例插件供参考_
      ...
 }</code></pre>
 触发方式包括 <code>on_command</code> <code>on_keyword</code> <code>on_regex</code>  
-其中 <code>"正则表达式"</code> 仅当触发方式为 <code>on_regex</code>
+其中 <code>"正则表达式"</code> 仅当触发方式为 <code>on_regex</code> 时需要填写
 
 注: 推荐将该字典置于__init__.py中
