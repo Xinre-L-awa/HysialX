@@ -13,8 +13,7 @@ _本框架提供了几个示例插件供参考_
     await bot.send(event.get_group_id, to_send_message)
 </code></pre>
 
->命令绑定
-为将命令与触发函数绑定，您需要按照以下模版进行编写
+>为将命令与触发函数绑定，您需要按照以下模版进行编写
 <pre><code>func_dict = {
     "触发器名称": [
          对应函数名,
