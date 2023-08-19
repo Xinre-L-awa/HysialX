@@ -1,8 +1,9 @@
 """
 @FrameWorkName: HysialX
 @FrameWorkAuthor: Xinre<ancdngding@qq.com>
-@FrameWorkLicense: MIT
+@FrameWorkVersion: 1.1.0
 @FrameWorkAddress: https://github.com/Xinre-L-awa/HysialX
+@FrameWorkLicense: MIT
 """
 import re
 import sys
