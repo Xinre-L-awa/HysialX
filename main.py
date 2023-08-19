@@ -24,7 +24,7 @@ from api import (
 
 
 is_InLoop = True
-
+GOCQWSURL = "ws://127.0.0.1:8080/hysial/event"
 loopFuncs = getExpectedFuncs(get_func_pool(), "RunInLoop")
 customFuncs = getExpectedFuncs(get_func_pool(), "custom")
 onstartupFuncs = getExpectedFuncs(get_func_pool(), "on_startup")
@@ -94,7 +94,7 @@ def handle(ws, message):
 
 def start():
     ws = websocket.WebSocketApp(
-            "ws://127.0.0.1:8080/event",
+            GOCQWSURL,
             on_message=handle
         )
     ws.run_forever()
