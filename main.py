@@ -14,7 +14,6 @@ import websocket
 from threading import Thread
 
 from script import *; init(False)
-from plugins import func_dicts as func_dict
 from api import (
     Bot,
     Event,
