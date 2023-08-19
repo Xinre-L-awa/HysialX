@@ -9,6 +9,8 @@ from log import sys, logger
 from api import get_plugin_pool
 from .manager import PluginMeta
 
+IGNORE_CIRCULAR_IMPORT = None
+
 os.chdir("./plugins")
 
 sys.path.append(os.getcwd())
