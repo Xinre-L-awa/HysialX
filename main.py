@@ -14,6 +14,7 @@ import websocket
 from threading import Thread
 
 from script import *; init(False)
+from plugins import IGNORE_CIRCULAR_IMPORT
 from api import (
     Bot,
     Event,
