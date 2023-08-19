@@ -1,7 +1,12 @@
 import psutil
+from api import (
+    Bot,
+    Event,
+    on_command
+)
 
-from api import Bot, Event
 
+@on_command("服务器状态")
 async def get_server_info(
     bot: Bot,
     event: Event

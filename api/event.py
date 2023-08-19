@@ -1,13 +1,11 @@
-from script import logger
-
-
 class Event:
-    _time: int
-    _user_id: str
-    _user_name: str
-    _group_id: str
-    _message: str
-    _message_type: str
+    _time: int = None
+    _user_id: str = None
+    _user_name: str = None
+    _user_group_name: str = None
+    _group_id: str = None
+    _message: str = None
+    _message_type: str = None
 
     def __init__(
         self, 
@@ -19,6 +17,7 @@ class Event:
             self._time = msg["time"]
             self._user_id = str(msg["sender"]["user_id"])
             self._user_name = msg["sender"]["nickname"]
+            self._user_group_name = msg["sender"]["card"]
             self._message = msg["message"]
             self._group_id = str(msg["group_id"])
             self._message_type = "group"
@@ -40,6 +39,10 @@ class Event:
     @property
     def get_user_name(self):
         return self._user_name
+    
+    @property
+    def get_user_group_name(self):
+        return self._user_group_name
     
     @property
     def get_message(self):

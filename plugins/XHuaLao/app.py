@@ -1,30 +1,54 @@
-import json, os
+import os
+import json
+import time
 from gevent import pywsgi
 from threading import Thread
 from flask import Flask, request, render_template
 
-from api import logger
+from log import logger
+from api import on_startup, DEFAULT_PLUGINS_DATA_PATH
+
 
 app = Flask(__name__)
+address = "0.0.0.0"
+port = 1145
+
 
 def AddVisit():
-    with open("./visits.json") as f:
+    visitor_ip = request.remote_addr
+    
+    logger.info(f"{visitor_ip} visited XHuaLao Web Service")
+    
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/visits.json") as f:
         data = json.load(f)
-        print(data)
-        visitor_ip = request.remote_addr
+
         if visitor_ip not in data:
-            data[visitor_ip] = 1
+            data.update({visitor_ip: 1})
         else:
             data[visitor_ip] += 1
-    with open("./visits.json", 'w') as f:
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/visits.json", 'w') as f:
         json.dump(data, f)
+    
+    if not os.path.exists(f"{DEFAULT_PLUGINS_DATA_PATH}/visitor_address.json"):
+        with open(f"{DEFAULT_PLUGINS_DATA_PATH}/visitor_address.json", 'w') as f:
+            f.write("{}")
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/visitor_address.json") as f:
+        data_ = json.load(f)
+        
+        now_time = time.strftime('%Y.%m.%d',time.localtime(time.time()))
+        if visitor_ip not in data_:
+            data_[visitor_ip] = [now_time]
+        elif now_time not in data_[visitor_ip]:
+            data_[visitor_ip].append(now_time)
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/visitor_address.json", 'w') as f:
+        json.dump(data_, f)
     
     return data
 
 
 @app.route('/')
 def index():
-    with open("./GroupStatistics.json") as f:
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupStatistics.json") as f:
         data = json.load(f)
 
     groups = []
@@ -40,19 +64,20 @@ def index():
 
 @app.route("/<group_id>")
 def display(group_id: str):
-    print(os.getcwd())
-    with open("./GroupStatistics.json") as f:
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupStatistics.json") as f:
         data = json.load(f)
     
     if group_id not in data: return "<h1>未查询到相关数据！</h1>"
     
-    with open("./DataForXPlugin/GroupRecordingTime.json") as f:
+    with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupRecordingTime.json") as f:
         record_time = json.load(f)[group_id]
     data = dict(sorted(data[group_id].items(), key=lambda x: x[1]['count'], reverse=True))
     
     i = 1
     data_ = []
     for _, v in data.items():
+        if " " in v["user_name"]:
+            v["user_name"].replace(" ", "&nbsp;")
         data_.append(
             {
                 "rank": i,
@@ -72,14 +97,15 @@ def display(group_id: str):
         count=sum([v["count"] for _, v in data.items()])
     )
 
+@on_startup
 def startHuaWeb():
     def _():
-        pywsgi.WSGIServer(('', 5000), app, log=None).serve_forever()
+        pywsgi.WSGIServer(('', 1145), app, log=None).serve_forever()
     try:
         p = Thread(target=_)
         p.setDaemon(True)
         p.start()
-        logger.success('Succeeded to start Web Sevice!')
+        logger.opt(colors=True).success(f'Succeeded to start Web Sevice on <c>http://{address}:{port}</c>!')
     except Exception as e:
         logger.warning(e)
         logger.warning('<r>Failed to start Web Sevice!</r>')

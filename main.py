@@ -5,22 +5,79 @@
 @FrameWorkAddress: https://github.com/Xinre-L-awa/HysialX
 """
 import re
+import sys
 import json
+import signal
 import asyncio
 import websocket
-from script import *
+from threading import Thread
 
-init(False)
-from api import Bot, Event
+from script import *; init(False)
 from plugins import func_dicts as func_dict
+from api import (
+    Bot,
+    Event,
+    set_device,
+    get_func_pool,
+    getExpectedFuncs
+)
 
 
-autorunFuncs = getExpectedFuncs(func_dict, "AutoRun")
-onstartupFuncs = getExpectedFuncs(func_dict, "on_startup")
+is_InLoop = True
+
+loopFuncs = getExpectedFuncs(get_func_pool(), "RunInLoop")
+customFuncs = getExpectedFuncs(get_func_pool(), "custom")
+onstartupFuncs = getExpectedFuncs(get_func_pool(), "on_startup")
+
+[func() for func in onstartupFuncs]
 
 
-for func in onstartupFuncs:
-    func[0]()
+def group_message_preprocessor(bot: Bot, event: Event):
+    sender_message = event.get_message
+    logger.info(f"收到群 {event.get_group_id} 中来自 {event.get_user_group_name if event.get_user_group_name != '' else event.get_user_name}({event.get_user_id}) 的消息: {sender_message}")
+
+    for func in loopFuncs:
+        func(bot, event)
+        
+    for func in customFuncs:
+        try:
+            if msg := func.custom_response_method(sender_message):
+                event.set_message(msg)
+                asyncio.run(
+                    func(
+                        bot,
+                        event
+                    )
+                )
+        except:
+            ...
+        
+    if possible_funcs := check_whether_func(sender_message, get_func_pool()):
+        for func in possible_funcs:
+            print(func)
+            if func.match_pattern == "on_keyword":
+                asyncio.run(
+                    func(
+                        bot,
+                        event
+                    )
+                )
+            elif func.match_pattern == "on_regex":
+                event.set_message(re.search(func.regex, sender_message).group(1))
+                print(event.get_message)
+                asyncio.run(
+                    func(
+                        bot,
+                        event
+                    )
+                )
+            elif func.match_pattern == "on_command" and sender_message == func.cmd:
+                asyncio.run(
+                    func(
+                        bot,
+                        event
+                    )
+                )
 
 
 @logger.catch
@@ -28,56 +85,40 @@ def handle(ws, message):
     _ = json.loads(message)
     message_type = _.get('message_type')
     
-    bot = Bot(func_dict)
+    bot = Bot()
     event = Event(_)
     
     if message_type == "group":
-        group_id = str(_['group_id'])
-        sender_name = _['sender']['nickname'].encode('utf-8').decode('utf-8')
-        logger.debug(sender_name)
-        sender_id = str(_['sender']['user_id'])
-        sender_message = _['message']
-        logger.info(f"收到群 {group_id} 中来自 {sender_name}({sender_id}) 的消息: {sender_message}")
+        group_message_preprocessor(bot, event)
 
-        for func in autorunFuncs:
-            func[0](bot, event)
-        
-        possible_func_name = sender_message.split()[0]
-        if possible_func_name in func_dict:
-            mode = func_dict[possible_func_name][1]
-            if mode == "on_keyword":
-                asyncio.run(
-                    func_dict[possible_func_name][0](
-                        bot,
-                        event
-                    )
-                )
-            elif mode == "on_regex":
-                event.set_message(re.search(func_dict[possible_func_name][2], sender_message).group(1))
-                asyncio.run(
-                    func_dict[possible_func_name][0](
-                        bot,
-                        event
-                    )
-                )
-            elif mode == "on_command" and sender_message == possible_func_name:
-                asyncio.run(
-                    func_dict[sender_message][0](
-                        bot,
-                        event
-                    )
-                )
+
+def start():
+    ws = websocket.WebSocketApp(
+            "ws://127.0.0.1:8080/event",
+            on_message=handle
+        )
+    ws.run_forever()
+
+
+def signal_handler(signal, frame):
+    logger.opt(colors=True).info("Closed")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
     logger.opt(colors=True).info("Trying to connect go-cqhttp...")
     try:
-        ws = websocket.WebSocketApp(
-                "ws://127.0.0.1:8081/event",
-                on_message=handle
-            )
+        t = Thread(target=start)
+        t.daemon = True
+        t.start()
         logger.opt(colors=True).success("Connected successfully!")
-        ws.run_forever()
+        asyncio.run(set_device("114514 大粪手机"))
     except Exception as e:
+        logger.exception(e)
         logger.opt(colors=True).error(e)
-    logger.opt(colors=True).info("Closed")
+    
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    while is_InLoop:
+        pass

@@ -1,12 +1,17 @@
 from loguru import logger
 from random import choice, random
-import wallhavenapi
-from api import Bot, Event
 
+import wallhavenapi
+from api import (
+    Bot,
+    Event,
+    on_regex
+)
 
 api_key = "nBINp1gNmmkwL3lgLLjJmXZKiqyqxgqj"
 
 
+@on_regex(r"搜图(.*)")
 async def get_pic(
     bot: Bot,
     event: Event
@@ -17,7 +22,7 @@ async def get_pic(
         if u'\u4e00' <= ch <= u'\u9fff':
             await bot.send(
                 event.get_group_id,
-                "暂不支持中文搜索!"
+                f"[CQ:at,qq={event.get_user_id}] 暂不支持中文搜索!"
             )
             return
     
@@ -33,11 +38,13 @@ async def get_pic(
 
         await bot.send(
             event.get_group_id,
+            f"[CQ:at,qq={event.get_user_id}]\n"
             "查无此图！"
         )
         return
 
     await bot.send(
         event.get_group_id,
+        f"[CQ:at,qq={event.get_user_id}]\n"
         f"[CQ:image,file={choice(data['data'])['path']}]"
     )

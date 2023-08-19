@@ -1,11 +1,12 @@
-"""
-本模块集合了所需函数及变量
-"""
 import os
+import re
 import yaml
-from log import *
-from typing import Callable, Dict, List, Union
+from log import logger
+from typing import List, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from pool import FuncPool
+    from plugins.manager import FuncMeta
 
 def init(check_files=True):
     logger.opt(colors=True).info("Hysial Bot is staring...")
@@ -24,8 +25,12 @@ def init(check_files=True):
         logger.opt(colors=True).info(f"The current account is {data['account']['uin']}")
 
 
-def getExpectedFuncs(
-    func_dict: Dict[str, List[Union[Callable, str]]],
-    expected_type: str
-) -> List[Union[Callable, str]]:
-    return [[func_dict[k][0], func_dict[k][1]] for k in func_dict if expected_type in func_dict[k][1]]
+def check_whether_func(
+    message: str,
+    func_pool: "FuncPool"
+) -> List["FuncMeta"]:
+    return [
+        func 
+        for func in func_pool
+        if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message))
+    ]
