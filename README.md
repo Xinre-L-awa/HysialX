@@ -1,6 +1,6 @@
 # HysialX
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
-__本框架依赖于go-cqhttp运行__
+__本框架依赖于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp "go-cqhttp 项目地址") 运行__
 # go-cqhttp配置
 您需要在config.yml中添加
 ```
