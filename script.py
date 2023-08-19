@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from plugins.manager import FuncMeta
 
 def init(check_files=True):
-    logger.opt(colors=True).info("Hysial Bot is staring...")
+    logger.opt(colors=True).info("Hysial Bot is starting...")
     if check_files:
         logger.opt(colors=True).info("Checking config files...")
         if not os.path.exists("./go-cqhttp"):
