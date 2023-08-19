@@ -42,3 +42,12 @@ async def test(bot: Bot, event: Event):
 @RunInLoop             # 被该装饰器装的是函数将在消息事件循环中循环运行
 @custom(自定义响应函数) # 该装饰器允许用户自定义响应方式(自定义响应函数 仅能够接收一个参数，即接收到的消息)，在示例插件中有实际应用(详见 plugins.Default.main.echo_)，
 ```
+>__API__
+>本框架提供了如下api供用户使用(所有api均位于包 api 中)
+```
+set_device(device_name: str) -> None
+get_func_pool() -> FuncPool
+get_plugin_pool() -> PluginPool
+get_waiting_pool() -> WaitingPool #该api尚无实际用途
+getExpectedFuncs(funcs_pool: FuncPool, expected_type: str) -> FuncPool
+```
