@@ -20,7 +20,6 @@ modules = [
     importlib.import_module(plugin) for plugin in plugins
 ]
 
-func_dicts = {}
 for module in modules:
     if hasattr(module, "__plugin_meta__"):
         get_plugin_pool().add_plugin(module.__plugin_meta__)
