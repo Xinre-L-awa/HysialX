@@ -1,4 +1,7 @@
 # HysialX
+
+__详细教程请访问[我的主页](https://xinre.top/2023/09/02/hysialx-%E4%B8%80%E4%B8%AA%E7%AE%80%E6%98%93%E7%9A%84qq%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6 "我的主页")__
+
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
 __本框架依赖于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp "go-cqhttp 项目地址") 运行__
 # go-cqhttp配置
