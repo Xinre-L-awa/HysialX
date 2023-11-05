@@ -1,0 +1,7 @@
+flask
+httpx
+gevent
+loguru
+pyyaml
+termcolor
+websocket-client
