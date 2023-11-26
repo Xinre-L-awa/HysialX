@@ -175,7 +175,6 @@ def split(target: str, delimiter=' ') -> List[str]:
 def AnalyseCommand(cmd: str):
     try:
         cmd = split(cmd)
-        print(cmd)
         if not cmd: return
         main_cmd = cmd[0]
         paras = separate_paras(cmd)
