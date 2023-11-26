@@ -62,12 +62,14 @@ class FuncPool:
 
     def add_func(self, func: "FuncMeta", priority=0):
         self.funcs.insert(priority, func)
+        return func
     
     def add_funcs(self, funcs: List["FuncMeta"]):
         self.funcs += funcs
+        return funcs
     
     def pop_func(self, func: "FuncMeta"):
-        self.funcs.pop(self.funcs.index(func))
+        return self.funcs.pop(self.funcs.index(func))
     
     @property
     def get_num_of_funcs(self):

@@ -1,4 +1,4 @@
-from typing import Callable, Optional, TYPE_CHECKING
+from typing import Any, Callable, Optional, TYPE_CHECKING
 
 from pool import FuncPool, WaitingPool
 from plugins.manager import FuncMeta, PluginPool
@@ -17,11 +17,42 @@ def get_waiting_pool() -> WaitingPool: return waiting_pool
 
 
 def on(func: Callable, pattern: str, **kwargs):
-    get_func_pool().add_func(FuncMeta(func, pattern, **kwargs))
-    return func
+    return get_func_pool().add_func(FuncMeta(func, pattern, **kwargs))
 
 
-def on_command(cmd: Optional[str]=None):
+class BaseOn:
+    func: Callable
+
+    def __init__(self, func: Callable) -> None:
+        self.func = func
+
+    def on_waiting(self, cmd: str) -> FuncMeta:
+        return
+
+
+# class on_command(BaseOn):
+#     def __call__(self, cmd: Optional[str] = None) -> FuncMeta:
+#         return on(
+#             self.func,
+#             "on_command",
+#             cmd=cmd
+#         )
+
+
+def on_command(cmd: Optional[str]) -> FuncMeta:
+    """
+
+    Parameters
+    ----------
+    cmd : Optional[str]
+        响应命令
+
+    Returns
+    -------
+    FuncMeta
+        DESCRIPTION.
+
+    """
     def wrapper(func: Callable[["Bot", "Event"], None]):
         return on(
             func,

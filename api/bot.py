@@ -25,7 +25,8 @@ class Bot:
     def __init__(self): ...
 
     async def send(self, uid, message):
-        return await asyncio.gather(send_(uid, "group", message), return_exceptions=True)
+        return await send_(uid, "group", message)
+        # return await asyncio.gather(send_(uid, "group", message), return_exceptions=True)
 
     async def call_api(self, api: str, **kwargs):
         async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:

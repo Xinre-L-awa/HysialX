@@ -10,7 +10,7 @@ from api import on_startup, DEFAULT_PLUGINS_DATA_PATH
 
 
 app = Flask(__name__)
-address = "0.0.0.0"
+address = "127.0.0.1"
 port = 1145
 
 

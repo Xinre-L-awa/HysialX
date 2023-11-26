@@ -23,7 +23,7 @@ class FuncMeta:
         self.aliases = kwargs.get("aliases")
         self.custom_response_method = kwargs.get("custom_response_method")
     
-    def __call__(self, bot: "Bot" = None, event: "Event" = None) -> None:
+    def __call__(self, bot: "Bot"=None, event: "Event"=None, isDebug=False) -> None:
         if self.match_pattern == "on_startup":
             return self._func()
         return self._func(bot, event)
@@ -45,6 +45,7 @@ class FuncMeta:
             f"正则匹配: {self.regex}\n"
             f"别名: {self.aliases}"
         )
+
 
 
 class PluginMeta:
@@ -113,6 +114,9 @@ class PluginPool:
 
     def add_plugins(self, *args: Optional[List[PluginMeta]]):
         self.plugins.extend(args)
+    
+    def dispose_all(self):
+        self.plugins.clear()
     
     @property
     def get_num_of_plugins(self):

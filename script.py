@@ -1,15 +1,17 @@
 import os
 import re
+import sys
 import yaml
+import importlib
 from log import logger
+from api import get_plugin_pool
 from typing import List, TYPE_CHECKING
-
+from plugins.manager import FuncMeta, PluginMeta
 if TYPE_CHECKING:
     from pool import FuncPool
-    from plugins.manager import FuncMeta
 
 def init(check_files=True):
-    logger.opt(colors=True).info("Hysial Bot is starting...")
+    logger.opt(colors=True).info("Hysial Bot is staring...")
     if check_files:
         logger.opt(colors=True).info("Checking config files...")
         if not os.path.exists("./go-cqhttp"):
@@ -34,3 +36,38 @@ def check_whether_func(
         for func in func_pool
         if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message))
     ]
+
+
+def import_module(module):
+    try:
+        module_ = importlib.import_module(module)
+        return module_
+    except Exception as e:
+        logger.error(e.with_traceback(None))
+        logger.error(f"Failed to import plugin {module}")
+        return None
+
+def load_plugins():
+    """
+    加载plugins目录下的插件
+    """
+    os.chdir("./plugins")
+
+    sys.path.append(os.getcwd())
+    plugins = [
+        x for x in os.listdir() 
+        if not (x.startswith('__') or x.endswith('.py'))
+    ]
+
+    for module in filter(
+        lambda x: bool(x),
+        [import_module(plugin) for plugin in plugins]
+    ):
+        if hasattr(module, "__plugin_meta__"):
+            get_plugin_pool().add_plugin(module.__plugin_meta__)
+        else:
+            get_plugin_pool().add_plugin(PluginMeta(module.__name__))
+        
+        logger.opt(colors=True).success(f'Succeeded to import plugin <y>"{module.__name__}"</y>')
+
+    os.chdir('..')

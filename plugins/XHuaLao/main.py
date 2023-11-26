@@ -59,7 +59,7 @@ def GroupMessageStatistics(
             json.dump(data, f)
 
 
-@on_command
+@on_command("话痨排行榜")
 async def PhimosisRanking(
     bot: Bot,
     event: Event
@@ -75,12 +75,13 @@ async def PhimosisRanking(
     for k, v in data_.items():
         s.append(f"{i}. {v['user_name']}共发送消息 {v['count']} 条")
         i += 1
-    s = '\n'.join(s[:10]) + f"\n更多信息请访问 http://{requests.get('https://checkip.amazonaws.com').text.strip()}:114 ~"
+    s = '\n'.join(s[:10])
+    # s = '\n'.join(s[:10]) + f"\n更多信息请访问 http://{requests.get('https://checkip.amazonaws.com').text.strip()} ~"
     
     await bot.send(event.get_group_id, s)
 
 
-@on_command
+@on_command("话痨排行榜 -a")
 async def DisplayCompleteRanking(
     bot: Bot,
     event: Event
@@ -99,3 +100,6 @@ async def DisplayCompleteRanking(
     s = '\n'.join(s)
     
     await bot.send(event.get_group_id, s)
+
+
+

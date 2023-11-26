@@ -14,9 +14,9 @@ def default_filter(record: "Record"):
 
 
 default_format: str = (
-    "<g>{time:MM-DD HH:mm:ss}</g> "
+    "<g>{time:YYYY-MM-DD HH:mm:ss}</g> "
     "[<lvl>{level}</lvl>] "
-    "<c><u>{name}</u></c> | "
+    "<c><u>HysialX</u></c> | "
     # "<c>{function}:{line}</c>| "
     "{message}"
 )
@@ -28,6 +28,6 @@ logger_id = logger.add(
     level=0,
     diagnose=False,
     filter=default_filter,
-    format=default_format,
+    format=default_format
 )
 logger.add("./logs/HysialLog.log", rotation="114.514 KB")
