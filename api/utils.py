@@ -1,10 +1,8 @@
 import httpx
 from log import logger
 from pool import FuncPool
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from plugins.manager import FuncMeta
-    from typing import List, Dict, Union, Callable
+from plugins.manager import FuncMeta
+from typing import List, Dict, Union, Callable
 
 async def set_device(name: str):
     async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
@@ -24,7 +22,7 @@ def getExpectedFuncs(
     res: FuncPool = FuncPool()
     for func in func_pool:
         if func.match_pattern == expected_type or check_func(func):
-            func.x = False if func.match_pattern in ("RunInLoop", "custom", "on_startup") else True
+            func.x =  func.match_pattern not in ("RunInLoop", "custom", "on_startup")
             res.add_func(func)
     
     return res
