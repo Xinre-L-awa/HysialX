@@ -64,3 +64,6 @@ get_plugin_pool() -> PluginPool
 get_waiting_pool() -> WaitingPool
 getExpectedFuncs(funcs_pool: FuncPool, expected_type: str) -> FuncPool
 ```
+>插件调试
+与 `main.py` 同目录下的 `debug.py` 可以模拟qq客户端的收发消息，缩短插件调试时间
+
