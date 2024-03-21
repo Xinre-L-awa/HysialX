@@ -63,7 +63,6 @@ def group_message_preprocessor(bot: Bot, event: Event):
             wevent = OnWaitingEvent(event)
             if "input" in task.response_method:
                 wevent.input_value = event.get_message
-                print(event.get_message)
             asyncio.run(
                 await_run_func(
                     task.func,
@@ -85,7 +84,6 @@ def group_message_preprocessor(bot: Bot, event: Event):
                 )
             elif func.match_pattern == "on_regex":
                 event.set_message(re.search(func.regex, sender_message).group(1))
-                print(event.get_message)
                 asyncio.run(
                     await_run_func(
                         func,
@@ -160,7 +158,7 @@ if __name__ == "__main__":
     init(False)
     load_plugins()
     is_InLoop = True
-    GOCQWSURL = "ws://127.0.0.1:8080/hysialx/event"
+    GOCQWSURL = "ws://127.0.0.1:1696/"
     loopFuncs = getExpectedFuncs(get_func_pool(), "RunInLoop")
     customFuncs = getExpectedFuncs(get_func_pool(), "custom")
     onstartupFuncs = getExpectedFuncs(get_func_pool(), "on_startup")

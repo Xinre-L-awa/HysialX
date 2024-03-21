@@ -45,13 +45,13 @@ async def Input(
     event: Event
 ) -> None:
     await bot.send(event.get_group_id, "请回复一个值：")
-    await bot.input_value()
+    await bot.input_value(group_id=event.get_group_id)
 
 
 async def get_value(
     bot: Bot,
     event: OnWaitingEvent
 ) -> None:
-    await bot.send(event.get_group_id, event.input_value)
+    await bot.send(event.get_group_id, f"你回复了：{event.input_value}")
 
 add_child_func(Input, get_value)

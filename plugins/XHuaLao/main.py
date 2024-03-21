@@ -1,6 +1,5 @@
 import json
 import time
-import requests
 
 from api import (
     Bot,
@@ -18,7 +17,7 @@ def GroupMessageStatistics(
 ):
         group_id = event.get_group_id
         sender_id = event.get_user_id
-        sender_name = event.get_user_group_name if event.get_user_group_name != '' else event.get_user_name
+        sender_name = event.get_user_name if event.get_user_name != '' else event.get_user_name
     
         with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupStatistics.json", encoding="utf-8", mode='r') as f:
             data = json.load(f)
@@ -36,12 +35,12 @@ def GroupMessageStatistics(
             )
             
             with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupRecordingTime.json") as f:
-                data = json.load(f)
-                data += {
+                data_ = json.load(f)
+                data_.update({
                     group_id: time.strftime('%Y.%m.%d',time.localtime(time.time()))
-                }
+                })
             with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupRecordingTime.json", mode='w') as f:
-                json.dump(data, f)
+                json.dump(data_, f)
         if sender_id not in data[group_id]:
             data[group_id].update(
                 {
