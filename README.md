@@ -7,11 +7,20 @@ __本框架依赖于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp "go-cqhttp �
 # go-cqhttp配置
 您需要在config.yml中添加
 ```
-- ws-reverse:
-      universal: ws://0.0.0.0:8080/hysialx/event
-      reconnect-interval: 3000
+- ws:
+      address: 127.0.0.1:1696
       middlewares:
         <<: *default # 引用默认中间件
+- http: # HTTP 通信设置
+      address: 0.0.0.0:570 # HTTP监听地址
+      version: 11     # OneBot协议版本, 支持 11/12
+      timeout: 5      # 反向 HTTP 超时时间, 单位秒，<5 时将被忽略
+      long-polling:   # 长轮询拓展
+        enabled: false       # 是否开启
+        max-queue-size: 2000 # 消息队列大小，0 表示不限制队列大小，谨慎使用
+      middlewares:
+        <<: *default # 引用默认中间件
+      post:           # 反向HTTP POST地址列表
 ```
 # 插件编写
 _本框架提供了几个示例插件供参考_  
