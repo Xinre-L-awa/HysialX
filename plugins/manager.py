@@ -1,29 +1,32 @@
-from typing import Any, List, Callable, Optional, TYPE_CHECKING
+from typing import List, Callable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from api import Bot, Event
 
 
 class FuncMeta:
-    x: bool
+    x: bool     # 标记该函数类型是否特殊（区别于 on_command, on_regex, on_keyword, on_waiting）
     cmd: Optional[str]
     _func: Callable
     regex: Optional[str]
-    aliases: set
+    aliases: Optional[set]
+    child_func: Optional[Callable]
     match_pattern: Optional[str]
-    custom_response_method: Callable[[str], str]
+    custom_response_method: Callable[[str], str] | None
 
-    def __init__(self, func, pattern, **kwargs) -> None:
+    def __init__(self, func: Callable[["Bot", "Event"], None], pattern, **kwargs) -> None:
         self.x = True
         self._func = func
         self.match_pattern = pattern
 
-        self.cmd = kwargs.get("cmd") if kwargs.get("cmd") else None
-        self.regex = kwargs.get("regex") if kwargs.get("regex") else None
+        self.cmd = kwargs.get("cmd")
+        self.regex = kwargs.get("regex")
         self.aliases = kwargs.get("aliases")
         self.custom_response_method = kwargs.get("custom_response_method")
     
-    def __call__(self, bot: "Bot"=None, event: "Event"=None, isDebug=False) -> None:
+    def __call__(self, bot: Optional["Bot"]=None, event: Optional["Event"]=None, isDebug=False) -> None:
+        if bot == None and event == None: return
+
         if self.match_pattern == "on_startup":
             return self._func()
         return self._func(bot, event)
@@ -46,14 +49,57 @@ class FuncMeta:
             f"别名: {self.aliases}"
         )
 
+    @property
+    def name(self) -> str:
+        return self._func.__name__
+
+
+class WaitingFuncMeta(FuncMeta):
+    isChildFunc: bool
+    child_func = None
+    parrent_func = None
+
+    def __init__(
+        self, 
+        func, 
+        child_func=None,
+        parrend_func=None,
+        isChildFunc=False,
+        **kwargs
+    ) -> None:
+        super().__init__(func, "on_waiting", **kwargs)
+        
+        self.isChildFunc = isChildFunc
+        self.child_func = child_func
+        self.parrent_func = parrend_func
+    
+    def __str__(self) -> str:
+        return (
+            f"函数名: {self._func.__name__}\n"
+            f"响应方式: {self.match_pattern}\n"
+            f"调用命令: {self.cmd}\n"
+            f"正则匹配: {self.regex}\n"
+            f"父函数: {self.parrent_func.__name__ if self.parrent_func else '无'}, 子函数: {self.child_func if self.child_func else '无'}\n"
+            f"别名: {self.aliases}"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"函数名: {self._func.__name__}\n"
+            f"响应方式: {self.match_pattern}\n"
+            f"调用命令: {self.cmd}\n"
+            f"正则匹配: {self.regex}\n"
+            f"父函数: {self.parrent_func.__name__ if self.parrent_func else '无'}, 子函数: {self.child_func if self.child_func else '无'}\n"
+            f"别名: {self.aliases}"
+        )
 
 
 class PluginMeta:
-    PluginName: str
-    PluginFuncs: Optional[List[FuncMeta]]
-    PluginUsage: str
-    PluginAuthor: str
-    PluginDescription: str
+    PluginName: Optional[str]
+    PluginFuncs: Optional[List[Callable]]
+    PluginUsage: Optional[str]
+    PluginAuthor: Optional[str]
+    PluginDescription: Optional[str]
 
     def __init__(
         self,
@@ -91,7 +137,7 @@ class PluginMeta:
 
 class PluginPool:
     cur_index: int
-    plugins: Optional[List[PluginMeta]]
+    plugins: List[PluginMeta]
 
     def __init__(self) -> None:
         self.plugins = []
@@ -112,8 +158,8 @@ class PluginPool:
     def add_plugin(self, plugin: PluginMeta):
         self.plugins.append(plugin)
 
-    def add_plugins(self, *args: Optional[List[PluginMeta]]):
-        self.plugins.extend(args)
+    def add_plugins(self, *args: List[PluginMeta]):
+        self.plugins.extend(args) # type: ignore
     
     def dispose_all(self):
         self.plugins.clear()

@@ -1,15 +1,15 @@
 import signal
 from time import time
-from typing import List, Dict
+from typing import List
+# from colorama import Fore
 from termcolor import colored
-
 from api import (
-    At,
-    ImageSegment,
-    AnalyseCQCode,
-    get_plugin_pool
+    run_func,
+    get_func_pool,
+    get_plugin_pool,
+    get_waiting_task_pool,
+    getExpectedFuncs
 )
-
 from main import (
     Bot,
     logger,
@@ -72,11 +72,9 @@ class Variables:
 variables = Variables()
 
 
+@logger.catch
 def new_send(_, _uid, msg: str) -> None:
-    try:
-        logger.info(msg)
-    except Exception as e:
-        logger.error(e)
+    logger.info(f"发送消息 {msg} 到群 {_uid} 成功")
 
 Bot.send = new_send
 
@@ -88,6 +86,7 @@ COMMANDS = {
     "build": lambda varible, content, *_, **__: buildMessage(varible, content),
     "reload": lambda *args, **kwargs: reload_plugins(),
     "plugins": lambda *args, **kwargs: {plugin.PluginName: plugin.__class__ for plugin in get_plugin_pool()},
+    "get_waiting_pool": lambda *args, **kwargs: "\n".join([str(task) for task in get_waiting_task_pool()]),
     "test_send": lambda *_, **__: Bot.send(_, _,
         '{"post_type":"message",'
         '"message_type":"group","time":1699108463,"self_id":3592797817,'
@@ -116,28 +115,40 @@ def help():
 def buildMessage(
     varible: str,
     content: str,
-    user_id: int=None,
+    self_id: int=123456789,
     msg_type: str="group",
     to_what_id: int=123456789,
     sender: Sender=Sender(100, "Unknown", 169699201, "Rainch_"),
     time_stamp: int=time()
 ) -> str:
-    template = '{"post_type":"message","message_type":"{}","time":{},"self_id":{},"sub_type":"normal","anonymous":null,"message_id":-1763953745,"font":0,"{}_id":{},"message":"{}","message_seq":1346,"raw_message":"{}","sender":{"age":0,"area":"","card":"","level":"","nickname":"{}","role":"owner","sex":"unknown","title":"","user_id":{}},"user_id":{}}'
-    
+    res = {
+        "post_type": "message",
+        "message_type": msg_type,
+        "time": time_stamp,
+        "self_id": self_id,
+        "sub_type":"normal",
+        "anonymous": None,
+        "message_id":-1763953745,
+        "font":0,
+        "message":content,
+        "message_seq":1346,"raw_message": content,
+        "sender": {
+            "age": sender.age,
+            "area": "",
+            "card": "",
+            "level": "",
+            "nickname": sender.nickname,
+            "role": "owner",
+            "sex": "unknown",
+            "title": "",
+            "user_id": sender.user_id
+        },
+        "user_id": sender.user_id
+    }
+    res[f"{msg_type}_id"] = to_what_id
     set_(
         varible, 
-        template.format(
-            msg_type,
-            time_stamp,
-            sender.user_id,
-            msg_type,
-            to_what_id,
-            content,
-            content,
-            sender.nickname,
-            user_id,
-            user_id
-        )
+        str(res).replace("'", '"').replace("None", "null")
     )
 
     return "Success"
@@ -146,8 +157,9 @@ def reload_plugins():
     get_plugin_pool().dispose_all()
     load_plugins()
 
-def send(to_be_sent_msg: str, *args, **kwargs):
-    handle(..., to_be_sent_msg + ''.join(args))
+def send(to_be_sent_msg: str, count: int=1, *args, **kwargs):
+    for _ in range(int(count)):
+        handle(..., to_be_sent_msg + ''.join(args))
 
 def isReplacable(cmd: str, index: int) -> bool:
     if cmd == "set" and index > 1: return True
@@ -172,30 +184,33 @@ def split(target: str, delimiter=' ') -> List[str]:
         result.append(current_item)
     return result
 
+@logger.catch
 def AnalyseCommand(cmd: str):
-    try:
-        cmd = split(cmd)
-        if not cmd: return
-        main_cmd = cmd[0]
-        paras = separate_paras(cmd)
+    if "==" in cmd:
+        v1, v2 = cmd.replace(' ', '').strip().split("==")
+        v1 = variables.getValue(v1) if variables.isExist(v1) else v1
+        v2 = variables.getValue(v2) if variables.isExist(v2) else v2
+        return str(v1 == v2)
+    cmd = split(cmd)
+    if not cmd: return
+    main_cmd = cmd[0]
+    paras = separate_paras(cmd)
 
-        if main_cmd not in COMMANDS:
-            if variables.isExist(main_cmd):
-                return variables.getValue(main_cmd)[0]
-            return f"\033[37mInvalid cmd\033[0m \033[31m{main_cmd}\033[0m"
-        for para in paras:
-            if para not in PARAMETERS:
-                return colored(f"Invalid parameter {para}", "red")
+    if main_cmd not in COMMANDS:
+        if variables.isExist(main_cmd):
+            return variables.getValue(main_cmd)[0]
+        return f"\033[37mInvalid cmd\033[0m \033[31m{main_cmd}\033[0m"
+    for para in paras:
+        if para not in PARAMETERS:
+            return colored(f"Invalid parameter {para}", "red")
 
-        cmd = [
-            variables.getValue(cmd_)[0] 
-            if variables.isExist(cmd_) and isReplacable(main_cmd, cmd.index(cmd_)) 
-            else cmd_ for cmd_ in cmd
-        ]
+    cmd = [
+        variables.getValue(cmd_)[0] 
+        if variables.isExist(cmd_) and isReplacable(main_cmd, cmd.index(cmd_)) 
+        else cmd_ for cmd_ in cmd
+    ]
 
-        return COMMANDS[main_cmd](*cmd[1:], **paras)
-    except Exception as e:
-        return e
+    return run_func(COMMANDS[main_cmd], *cmd[1:], **paras, isDebug=True)
 
 
 def signal_handler(signal: int, frame):
@@ -203,7 +218,7 @@ def signal_handler(signal: int, frame):
         2: "\nCtrl-C cancelled the process"
     }
     print(signals[signal])
-    # print(f"Signal {signal} detected")
+    logger.info("HysialX Debug Console is closing...")
     exit(0)
 
 
@@ -216,10 +231,29 @@ def loop():
         if x := AnalyseCommand(input(colored(">>> ", "cyan"))): print(x)
 
 
-try:
+@logger.catch
+def start():
     logger.info(f'{colored("HysialX Debug Console", "blue", "on_black", ["bold", "blink"])} is starting...')
+
     load_plugins()
+    onstartupFuncs = getExpectedFuncs(get_func_pool(), "on_startup")
+    [run_func(func, isDebug=True) for func in onstartupFuncs]
+
+
+    # func: WaitingFuncMeta
+    # for func in filter(
+    #     lambda x: isinstance(x, WaitingFuncMeta),
+    #     get_func_pool()
+    # ):
+    #     print(func.parrent_func)
+    #     print(func.child_func)
+    #     if func.isChildFunc:
+    #         func()
+
     loop()
-except Exception as e:
-    logger.error(e)
+
     logger.info("HysialX Debug Console is closing...")
+
+
+if __name__ == "__main__":
+    start()

@@ -2,7 +2,57 @@ import httpx
 from log import logger
 from pool import FuncPool
 from plugins.manager import FuncMeta
+from .exception import FinishException
+from .on import get_waiting_task_pool
+from pool import WaitingFuncMeta
 from typing import List, Dict, Union, Callable
+
+
+@logger.catch
+def run_func(func: "FuncMeta", *args, isDebug=False) -> int:
+    """
+    封装函数运行，丰富运行参数
+    """
+    exit_code = 0
+    try:
+        res = func(*args)
+    except FinishException as finish:
+        if isDebug:
+            if isinstance(func, FuncMeta):
+                logger.debug(f"{func.name} 触发了 {finish}")
+            else:
+                logger.debug(f"{func.__name__} 触发了 {finish}")
+    except Exception as e:
+        logger.error(e)
+        exit_code = -1
+    if isDebug:
+        if isinstance(func, FuncMeta):
+            logger.debug(f"{func.name} 执行完毕")
+        else:
+            logger.debug(f"{func.__name__} 执行完毕")
+    return res
+
+
+@logger.catch
+async def await_run_func(func: "FuncMeta", *args, isDebug=False) -> int:
+    """
+    封装函数运行，丰富运行参数
+    """
+    exit_code = 0
+    print(type(func._func))
+    try:
+        res = await func(*args)
+    except FinishException as finish:
+        if isDebug:
+            logger.debug(f"{func.name} 触发了 {finish}")
+    except Exception as e:
+        logger.error(e)
+        exit_code = -1
+    if isDebug:
+        logger.debug(f"{func.name} 函数执行完毕")
+    # return res
+    # return exit_code
+
 
 async def set_device(name: str):
     async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
@@ -21,8 +71,11 @@ def getExpectedFuncs(
 ) -> FuncPool:
     res: FuncPool = FuncPool()
     for func in func_pool:
-        if func.match_pattern == expected_type or check_func(func):
-            func.x =  func.match_pattern not in ("RunInLoop", "custom", "on_startup")
+        if func.match_pattern == expected_type:
+            func.x = func.match_pattern not in ("RunInLoop", "custom", "on_startup")
+            res.add_func(func)
+        elif check_func != None and check_func(func):
+            func.x = func.match_pattern not in ("RunInLoop", "custom", "on_startup")
             res.add_func(func)
     
     return res
@@ -72,6 +125,10 @@ def AnalyseCQCode(cq: str) -> List[Dict[str, str]]:
                 stack = []
                 continue
     return res
+
+
+def CreateOnWaitingTask(func: Callable, type_: str=None):
+    get_waiting_task_pool().add_task(WaitingFuncMeta(func))
 
 
 def At(qq: Union[int, str]) -> str: return f"[CQ:at,qq={qq}]"

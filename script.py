@@ -14,18 +14,20 @@ def init(check_files=True):
     logger.opt(colors=True).info("Hysial Bot is staring...")
     if check_files:
         logger.opt(colors=True).info("Checking config files...")
+
         if not os.path.exists("./go-cqhttp"):
             logger.error("<r>No go-cqhttp founded!</r>")
             logger.opt(colors=True).info("Closed")
             exit(-1)
+        
         if not os.path.exists("GroupStatistics.json"):
-            logger.warning("GroupStatistics.json does not exist, and will be created.")
+            logger.warning('"GroupStatistics.json" does not exist, and will be created.')
             with open("GroupStatistics.json", 'w'):
                 logger.success("Created Successfully.")
+            
         with open("go-cqhttp/config.yml", encoding="utf-8", mode='r') as f:
             data = yaml.safe_load(f)
         logger.opt(colors=True).info(f"The current account is {data['account']['uin']}")
-
 
 def check_whether_func(
     message: str,
@@ -37,13 +39,12 @@ def check_whether_func(
         if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message))
     ]
 
-
 def import_module(module):
     try:
         module_ = importlib.import_module(module)
         return module_
     except Exception as e:
-        logger.error(e.with_traceback(None))
+        logger.exception(e)
         logger.error(f"Failed to import plugin {module}")
         return None
 

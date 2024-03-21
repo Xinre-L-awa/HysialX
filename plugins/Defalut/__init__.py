@@ -1,14 +1,12 @@
 from plugins.manager import PluginMeta
-# from typing import List, Dict, Union, Callable
-
 from .main import *
-
+# from typing import List, Dict, Union, Callable
 
 # custom_response = lambda x: x[1:] if x[0] == ' ' else ''
 
 __plugin_meta__ = PluginMeta(
     "Defalut",
-    Usage="echo ... -> say ...",
+    Usage="echo ... -> robot says ...",
     Author="Xinre",
     Description="The defalut plugin of HysialX"
 )
