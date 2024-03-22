@@ -1,13 +1,15 @@
 import os
 import json
 import time
-from gevent import pywsgi
 from threading import Thread
 from flask import Flask, request, render_template
 
 from log import logger
 from api import on_startup, DEFAULT_PLUGINS_DATA_PATH
 
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 address = "127.0.0.1"
@@ -100,7 +102,8 @@ def display(group_id: str):
 @on_startup
 def startHuaWeb():
     def _():
-        pywsgi.WSGIServer(('', 1145), app, log=None).serve_forever()
+        app.run(port=port)
+    print(1)
     try:
         p = Thread(target=_)
         p.setDaemon(True)

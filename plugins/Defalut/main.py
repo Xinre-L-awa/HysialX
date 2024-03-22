@@ -35,7 +35,7 @@ async def DisplayAllFunc(
     msg = []
     for func in get_func_pool():
         if func.x:
-            msg.append("{}".format(func.cmd if func.cmd != None else func.regex))
+            msg.append("{}".format(func.name))
     await bot.send(event.get_group_id, '\n'.join(msg))
 
 

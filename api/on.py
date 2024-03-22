@@ -39,6 +39,19 @@ def on(func: Callable[["Bot", "Event"], None] | FuncMeta | WaitingFuncMeta, patt
 #         )
 
 
+def on_at(qq: int | None=None):
+    """
+    qq 为指定要检测的 qq号, 默认为机器人本身
+    """
+    def wrapper(func: Callable[["Bot", "Event"], None]):
+        return on(
+            func,
+            "on_at",
+            qq=qq
+        )
+    return wrapper
+
+
 def on_command(cmd: Optional[str]) -> FuncMeta:
     """
 
@@ -103,18 +116,18 @@ class on_waiting:
         return self
 
     def add_child_func(self, child_func):
-        print(child_func.__name__, 1)
+        # print(child_func.__name__, 1)
         self.func.child_func = child_func
     
     def then(self, cmd: Optional[str]=None, regex: Optional[str]=None, response_method: Callable=None):
-        print("test")
+        # print("test")
         def wrapper(func: Callable[["Bot", "Event"], None]):
             meta: WaitingFuncMeta
             for meta in get_func_pool():
-                print("test")
-                print(meta, self.func)
+                # print("test")
+                # print(meta, self.func)
                 if meta == self.func:
-                    print(meta)
+                    # print(meta)
                     meta.child_func = func
             return on(
                 WaitingFuncMeta(

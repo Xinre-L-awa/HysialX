@@ -2,6 +2,7 @@ from .bot import Bot as Bot
 from .event import Event as Event
 from .event import OnWaitingEvent as OnWaitingEvent
 
+from .on import on_at as on_at
 from .on import custom as custom
 from .on import RunInLoop as RunInLoop
 from .on import on_regex as on_regex

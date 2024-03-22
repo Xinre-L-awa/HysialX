@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 class FuncMeta:
     x: bool     # 标记该函数类型是否特殊（区别于 on_command, on_regex, on_keyword, on_waiting）
+    at: int
     cmd: Optional[str]
     _func: Callable
     regex: Optional[str]
@@ -19,16 +20,17 @@ class FuncMeta:
         self._func = func
         self.match_pattern = pattern
 
+        self.at = kwargs.get("at")
         self.cmd = kwargs.get("cmd")
         self.regex = kwargs.get("regex")
         self.aliases = kwargs.get("aliases")
         self.custom_response_method = kwargs.get("custom_response_method")
     
     def __call__(self, bot: Optional["Bot"]=None, event: Optional["Event"]=None, isDebug=False) -> None:
-        if bot == None and event == None: return
-
         if self.match_pattern == "on_startup":
             return self._func()
+        elif bot == None and event == None: return
+
         return self._func(bot, event)
     
     def __str__(self) -> str:

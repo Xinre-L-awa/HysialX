@@ -17,7 +17,7 @@ def GroupMessageStatistics(
 ):
         group_id = event.get_group_id
         sender_id = event.get_user_id
-        sender_name = event.get_user_name if event.get_user_name != '' else event.get_user_name
+        sender_name = event.get_user_group_name if event.get_user_group_name != '' else event.get_user_name
     
         with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupStatistics.json", encoding="utf-8", mode='r') as f:
             data = json.load(f)

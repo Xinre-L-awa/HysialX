@@ -35,7 +35,7 @@ from plugins.manager import WaitingFuncMeta
 @logger.catch
 def group_message_preprocessor(bot: Bot, event: Event):
     sender_message = event.get_message
-    logger.info(f"收到群 {event.get_group_id} 中来自 {event.get_group_name if event.get_group_name != '' else event.get_user_name}({event.get_user_id}) 的消息: {sender_message}")
+    logger.info(f"收到群 {event.get_group_id} 中来自 {event.get_user_group_name if event.get_user_group_name != '' else event.get_user_name}({event.get_user_id}) 的消息: {sender_message}")
 
     
 
@@ -180,6 +180,7 @@ if __name__ == "__main__":
     customFuncs = getExpectedFuncs(get_func_pool(), "custom")
     onstartupFuncs = getExpectedFuncs(get_func_pool(), "on_startup")
 
+    print(onstartupFuncs)
     [run_func(func) for func in onstartupFuncs]
 
     # func: WaitingFuncMeta
