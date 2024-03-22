@@ -76,13 +76,24 @@ def group_message_preprocessor(bot: Bot, event: Event):
         for func in possible_funcs:
             bot.func = func
             if func.match_pattern == "on_keyword":
+                logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
                 asyncio.run(
                     await_run_func(
                         func,
                         bot, event
                     )
                 )
-            elif func.match_pattern == "on_regex":
+            elif func.match_pattern == "on_at" and f"[CQ:at,qq={func.at if func.at else event.get_self_id}]" in sender_message:
+                logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
+                event.set_message(event.get_message.replace(f"[CQ:at,qq={func.at}]", ''))
+                asyncio.run(
+                    await_run_func(
+                        func,
+                        bot, event
+                    )
+                )
+            elif func.match_pattern == "on_regex" and re.search(func.regex, sender_message):
+                logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
                 event.set_message(re.search(func.regex, sender_message).group(1))
                 asyncio.run(
                     await_run_func(
@@ -91,6 +102,7 @@ def group_message_preprocessor(bot: Bot, event: Event):
                     )
                 )
             elif func.match_pattern == "on_command" and sender_message == func.cmd:
+                logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
                 asyncio.run(
                     await_run_func(
                         func,
@@ -98,6 +110,7 @@ def group_message_preprocessor(bot: Bot, event: Event):
                     )
                 )
             elif func.match_pattern == "on_waiting" and (sender_message == func.cmd or func.custom_response_method(sender_message)):
+                logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
                 func: WaitingFuncMeta
                 get_waiting_task_pool().add_task(WaitingTask(func.child_func, user_id=event.get_user_id, group_id=event.get_group_id))
                 # print(func.child_func)
@@ -124,19 +137,23 @@ def switch_type(type_: str):
     }.get(type_, lambda *_: ...)
 
 
+BOT_ID: int = None
+
 @logger.catch
 def handle(ws, message):
     _ = json.loads(message)
     if _.get("meta_event_type") == "lifecycle":
+        global BOT_ID
+        BOT_ID = int(_.get("self_id"))
         logger.opt(colors=True).success("Connected successfully!")
-        logger.info(f"The current bot account is {_.get('self_id')}")
+        logger.info(f"The current bot account is {BOT_ID}")
         asyncio.run(set_device("114514 大粪手机"))
         return
 
     message_type = _.get('message_type')
     
     bot = Bot()
-    event = Event(_)
+    event = Event(BOT_ID, _)
     
     switch_type(message_type)(bot, event)
 
@@ -147,7 +164,7 @@ def start():
         on_message=handle
     )
     ws.run_forever()
-
+    
 
 def signal_handler(signal, frame):
     logger.opt(colors=True).info("Closed")
@@ -158,17 +175,17 @@ if __name__ == "__main__":
     init(False)
     load_plugins()
     is_InLoop = True
-    GOCQWSURL = "ws://127.0.0.1:1696/"
+    GOCQWSURL = "ws://127.0.0.1:1696/event"
     loopFuncs = getExpectedFuncs(get_func_pool(), "RunInLoop")
     customFuncs = getExpectedFuncs(get_func_pool(), "custom")
     onstartupFuncs = getExpectedFuncs(get_func_pool(), "on_startup")
 
     [run_func(func) for func in onstartupFuncs]
 
-    func: WaitingFuncMeta
-    for func in get_func_pool():
-        if isinstance(func, WaitingFuncMeta) and func.isChildFunc:
-            func()
+    # func: WaitingFuncMeta
+    # for func in get_func_pool():
+    #     if isinstance(func, WaitingFuncMeta) and func.isChildFunc:
+    #         func()
 
     logger.info("Trying to connect go-cqhttp...")
     try:

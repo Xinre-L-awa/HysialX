@@ -36,7 +36,7 @@ def check_whether_func(
     return [
         func 
         for func in func_pool
-        if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message))
+        if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message)) or ("[CQ:at" in message and func.match_pattern == "on_at")
     ]
 
 def import_module(module):
