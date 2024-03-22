@@ -3,10 +3,10 @@
 __详细教程请访问[我的主页](https://xinre.top/2023/09/02/hysialx-%E4%B8%80%E4%B8%AA%E7%AE%80%E6%98%93%E7%9A%84qq%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6 "我的主页")__
 
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
-__本框架依赖于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp "go-cqhttp 项目地址") 运行__
+__本框架可对接所有实现 OneBot 标准的服务端__
 # go-cqhttp配置
 您需要在config.yml中添加
-```
+```yml
 - ws:
       address: 127.0.0.1:1696
       middlewares:
@@ -22,12 +22,25 @@ __本框架依赖于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp "go-cqhttp �
         <<: *default # 引用默认中间件
       post:           # 反向HTTP POST地址列表
 ```
+# Lagrange配置
+您需要在`appsettings.json`的`Implementlations`中添加
+```json
+{
+      "Type": "ForwardWebSocket",
+      "Host": "127.0.0.1",
+      "Port": 1696,
+      "Suffix": "/event",
+      "ReconnectInterval": 5000,
+      "HeartBeatInterval": 5000,
+      "AccessToken": ""
+}
+```
 # 插件编写
 _本框架提供了几个示例插件供参考_  
 本qq机器人框架插件应为标准python包, 且需置于<code>plugins</code>文件夹中
 
 >为更好地使用与插件信息相关的api，用户需在插件中(最好在__init__.py中)添加如下常量&nbsp;&nbsp;_当然这是可选的_
-```
+```python
 __plugin_meta__ = PluginMeta(
     PluginName,
     PluginFuncs,
@@ -38,7 +51,7 @@ __plugin_meta__ = PluginMeta(
 ```
 
 >插件函数需按以下模版进行编写
-```
+```python
 @对应响应方式
 async def test(bot: Bot, event: Event):
     ...
@@ -47,7 +60,7 @@ async def test(bot: Bot, event: Event):
 
 >为将命令与触发函数绑定，您需要给触发函数添加响应装饰器，这样框架将在加载插件时，将触发函数信息注册到函数池中，便于调用。
 >以下为各种响应器使用方式：
-```
+```python
 @on_command("命令")
 @on_keyword("命令")
 @on_waiting()          # 注册一个等待事件函数
@@ -57,13 +70,13 @@ async def test(bot: Bot, event: Event):
 ```
 >__API__
 >本框架提供了如下api供用户使用(所有api均位于包 api 中)
-```
+```python
 set_device(device_name: str) -> None
 get_func_pool() -> FuncPool
 get_plugin_pool() -> PluginPool
 get_waiting_pool() -> WaitingPool
 getExpectedFuncs(funcs_pool: FuncPool, expected_type: str) -> FuncPool
 ```
->插件调试
+# 插件调试
 与 `main.py` 同目录下的 `debug.py` 可以模拟qq客户端的收发消息，缩短插件调试时间
 
