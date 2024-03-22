@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>话痨排行榜-{{ title }}</title>
+        <meta name="author" content="Xinre<ancdngding@qq.com>">
+        <style>
+            .container {
+            width: 90%;
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        </style>
+    </head>
+    <body>
+        <div style="left: 50%; color: gray; text-align: center;">记录时间:&nbsp;&nbsp;{{ record_time }}&nbsp;至今</div>
+        <table>
+            <tr>
+                <th>序号</th>
+                <th>昵称</th>
+                <th>发送消息数量/条</th>
+            </tr>
+            {% for i in data %}<tr>
+                <td>{{ i["rank"] }}</td>
+                <td>{{ i["name"] }}</td>
+                <td>{{ i["count"] }}</td>
+            </tr>{% endfor %}
+        </table>
+    </body>
+</html>

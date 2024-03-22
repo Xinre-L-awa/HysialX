@@ -1,0 +1,345 @@
+2024-03-21 17:53:55.384 | SUCCESS  | script:load_plugins:72 - Succeeded to import plugin "XHuaLao"
+2024-03-21 17:53:55.393 | SUCCESS  | script:load_plugins:72 - Succeeded to import plugin "Xpic"
+2024-03-21 17:53:55.394 | INFO     | __main__:<module>:193 - Trying to connect go-cqhttp...
+2024-03-21 17:54:12.211 | INFO     | __main__:signal_handler:173 - Closed
+2024-03-21 17:54:42.447 | SUCCESS  | script:load_plugins:73 - Succeeded to import plugin "chatgpt"
+2024-03-21 17:54:42.449 | SUCCESS  | script:load_plugins:73 - Succeeded to import plugin "Defalut"
+2024-03-21 17:54:42.449 | SUCCESS  | script:load_plugins:73 - Succeeded to import plugin "logs"
+2024-03-21 17:54:42.463 | SUCCESS  | script:load_plugins:73 - Succeeded to import plugin "t"
+2024-03-21 17:54:42.463 | SUCCESS  | script:load_plugins:73 - Succeeded to import plugin "XHuaLao"
+2024-03-21 17:54:42.464 | SUCCESS  | script:load_plugins:73 - Succeeded to import plugin "Xpic"
+2024-03-21 17:54:42.464 | INFO     | __main__:<module>:191 - Trying to connect go-cqhttp...
+2024-03-21 17:54:42.584 | SUCCESS  | __main__:handle:149 - Connected successfully!
+2024-03-21 17:54:42.632 | INFO     | __main__:handle:150 - The current bot account is 3508166608
+2024-03-21 17:54:46.104 | ERROR    | websocket._app:_callback:660 - An error has been caught in function '_callback', process 'MainProcess' (4136), thread 'Thread-1 (start)' (9024):
+Traceback (most recent call last):
+
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\anyio\_core\_sockets.py", line 167, in try_connect
+    stream = await asynclib.connect_tcp(remote_host, remote_port, local_address)
+                   │        │           │            │            └ None
+                   │        │           │            └ 570
+                   │        │           └ '127.0.0.1'
+                   │        └ <function connect_tcp at 0x0000020059F7A020>
+                   └ <module 'anyio._backends._asyncio' from 'C:\\Users\\rainc\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz...
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\anyio\_backends\_asyncio.py", line 1627, in connect_tcp
+    await get_running_loop().create_connection(
+          └ <built-in function get_running_loop>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 1120, in create_connection
+    raise exceptions[0]
+          └ None
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 1102, in create_connection
+    sock = await self._connect_sock(
+                 │    └ <function BaseEventLoop._connect_sock at 0x000002005690FA60>
+                 └ <ProactorEventLoop running=False closed=True debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 1005, in _connect_sock
+    await self.sock_connect(sock, address)
+          │    │            │     └ ('127.0.0.1', 570)
+          │    │            └ <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+          │    └ <function BaseProactorEventLoop.sock_connect at 0x0000020056976340>
+          └ <ProactorEventLoop running=False closed=True debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py", line 727, in sock_connect
+    return await self._proactor.connect(sock, address)
+                 │    │                 │     └ ('127.0.0.1', 570)
+                 │    │                 └ <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+                 │    └ None
+                 └ <ProactorEventLoop running=False closed=True debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py", line 798, in _poll
+    value = callback(transferred, key, ov)
+            │        │            │    └ <_overlapped.Overlapped object at 0x0000020059EA1EF0>
+            │        │            └ 0
+            │        └ 0
+            └ <function IocpProactor.connect.<locals>.finish_connect at 0x0000020059F86340>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py", line 594, in finish_connect
+    ov.getresult()
+    │  └ <method 'getresult' of '_overlapped.Overlapped' objects>
+    └ <_overlapped.Overlapped object at 0x0000020059EA1EF0>
+
+ConnectionRefusedError: [WinError 1225] 远程计算机拒绝网络连接。
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_exceptions.py", line 10, in map_exceptions
+    yield
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_backends\anyio.py", line 114, in connect_tcp
+    stream: anyio.abc.ByteStream = await anyio.connect_tcp(
+            │     │   │                  │     └ <function connect_tcp at 0x0000020056FADB20>
+            │     │   │                  └ <module 'anyio' from 'C:\\Users\\rainc\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCa...
+            │     │   └ <class 'anyio.abc.ByteStream'>
+            │     └ <module 'anyio.abc' from 'C:\\Users\\rainc\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\Loc...
+            └ <module 'anyio' from 'C:\\Users\\rainc\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCa...
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\anyio\_core\_sockets.py", line 225, in connect_tcp
+    raise OSError("All connection attempts failed") from cause
+                                                         └ ConnectionRefusedError(22, '远程计算机拒绝网络连接。', None, 1225, None)
+
+OSError: All connection attempts failed
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_transports\default.py", line 67, in map_httpcore_exceptions
+    yield
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_transports\default.py", line 371, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+                 │    │     │                    └ <Request [b'POST']>
+                 │    │     └ <function AsyncConnectionPool.handle_async_request at 0x000002005711F1A0>
+                 │    └ <httpcore.AsyncConnectionPool object at 0x0000020059F54470>
+                 └ <httpx.AsyncHTTPTransport object at 0x0000020059314FE0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_async\connection_pool.py", line 268, in handle_async_request
+    raise exc
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_async\connection_pool.py", line 251, in handle_async_request
+    response = await connection.handle_async_request(request)
+                     │          │                    └ <Request [b'POST']>
+                     │          └ <function AsyncHTTPConnection.handle_async_request at 0x000002005711E340>
+                     └ <AsyncHTTPConnection [CONNECTION FAILED]>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_async\connection.py", line 99, in handle_async_request
+    raise exc
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_async\connection.py", line 76, in handle_async_request
+    stream = await self._connect(request)
+                   │    │        └ <Request [b'POST']>
+                   │    └ <function AsyncHTTPConnection._connect at 0x000002005711E3E0>
+                   └ <AsyncHTTPConnection [CONNECTION FAILED]>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_async\connection.py", line 124, in _connect
+    stream = await self._network_backend.connect_tcp(**kwargs)
+                   │    │                │             └ {'host': '127.0.0.1', 'port': 570, 'local_address': None, 'timeout': 5.0, 'socket_options': None}
+                   │    │                └ <function AutoBackend.connect_tcp at 0x000002005711C900>
+                   │    └ <httpcore._backends.auto.AutoBackend object at 0x0000020059F54560>
+                   └ <AsyncHTTPConnection [CONNECTION FAILED]>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_backends\auto.py", line 30, in connect_tcp
+    return await self._backend.connect_tcp(
+                 │    │        └ <function AnyIOBackend.connect_tcp at 0x000002005740B6A0>
+                 │    └ <httpcore.AnyIOBackend object at 0x0000020059314E60>
+                 └ <httpcore._backends.auto.AutoBackend object at 0x0000020059F54560>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_backends\anyio.py", line 112, in connect_tcp
+    with map_exceptions(exc_map):
+         │              └ {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>, <class 'anyio...
+         └ <function map_exceptions at 0x0000020056EDC900>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+    │    │   │     └ OSError('All connection attempts failed')
+    │    │   └ <method 'throw' of 'generator' objects>
+    │    └ <generator object map_exceptions at 0x0000020059F1E2F0>
+    └ <contextlib._GeneratorContextManager object at 0x0000020059F80590>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpcore\_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+          └ <class 'httpcore.ConnectError'>
+
+httpcore.ConnectError: All connection attempts failed
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1030, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x00000200564C8180>
+    └ <Thread(Thread-1 (start), started daemon 9024)>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1073, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x00000200564A7E20>
+    └ <Thread(Thread-1 (start), started daemon 9024)>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-1 (start), started daemon 9024)>
+    │    │        │    └ ()
+    │    │        └ <Thread(Thread-1 (start), started daemon 9024)>
+    │    └ <function start at 0x000002005799E520>
+    └ <Thread(Thread-1 (start), started daemon 9024)>
+
+  File "C:\Users\rainc\Documents\HysialX-latest\main.py", line 167, in start
+    ws.run_forever()
+    │  └ <function WebSocketApp.run_forever at 0x0000020056A874C0>
+    └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 604, in run_forever
+    setSock()
+    └ <function WebSocketApp.run_forever.<locals>.setSock at 0x000002005799E7A0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 500, in setSock
+    dispatcher.read(self.sock.sock, read, check)
+    │          │    │    │    │     │     └ <function WebSocketApp.run_forever.<locals>.check at 0x0000020059CDBB00>
+    │          │    │    │    │     └ <function WebSocketApp.run_forever.<locals>.read at 0x0000020059CDB9C0>
+    │          │    │    │    └ <socket.socket fd=1236, family=2, type=1, proto=6, laddr=('127.0.0.1', 13938), raddr=('127.0.0.1', 1696)>
+    │          │    │    └ <websocket._core.WebSocket object at 0x0000020059CEDDF0>
+    │          │    └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+    │          └ <function Dispatcher.read at 0x0000020056A86B60>
+    └ <websocket._app.Dispatcher object at 0x000002005961D970>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 88, in read
+    if not read_callback():
+           └ <function WebSocketApp.run_forever.<locals>.read at 0x0000020059CDB9C0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 540, in read
+    self._callback(self.on_message, data)
+    │    │         │    │           └ '{"sub_type":"connect","meta_event_type":"lifecycle","time":1711014882,"self_id":3508166608,"post_type":"meta_event"}'
+    │    │         │    └ <function handle at 0x000002005799E200>
+    │    │         └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+    │    └ <function WebSocketApp._callback at 0x0000020056A876A0>
+    └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+> File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 660, in _callback
+    callback(self, *args)
+    │        │      └ ('{"sub_type":"connect","meta_event_type":"lifecycle","time":1711014882,"self_id":3508166608,"post_type":"meta_event"}',)
+    │        └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+    └ <function handle at 0x000002005799E200>
+
+  File "C:\Users\rainc\Documents\HysialX-latest\main.py", line 151, in handle
+    asyncio.run(set_device("114514 大粪手机"))
+    │       │   └ <function set_device at 0x000002005792C9A0>
+    │       └ <function run at 0x000002005618A700>
+    └ <module 'asyncio' from 'C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\\L...
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 194, in run
+    return runner.run(main)
+           │      │   └ <coroutine object set_device at 0x0000020059F1D300>
+           │      └ <function Runner.run at 0x0000020056911080>
+           └ <asyncio.runners.Runner object at 0x0000020059CEC260>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │                        └ <Task finished name='Task-1' coro=<set_device() done, defined at C:\Users\rainc\Documents\HysialX-latest\api\utils.py:57> exc...
+           │    └ None
+           └ <asyncio.runners.Runner object at 0x0000020059CEC260>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 685, in run_until_complete
+    return future.result()
+           │      └ <method 'result' of '_asyncio.Task' objects>
+           └ <Task finished name='Task-1' coro=<set_device() done, defined at C:\Users\rainc\Documents\HysialX-latest\api\utils.py:57> exc...
+
+  File "C:\Users\rainc\Documents\HysialX-latest\api\utils.py", line 63, in set_device
+    await client.post("/_get_model_show", params=params)
+          │      │                               └ {'model': '114514 大粪手机', 'model_show': '114514 大粪手机'}
+          │      └ <function AsyncClient.post at 0x000002005741F380>
+          └ <httpx.AsyncClient object at 0x0000020059C5BFB0>
+
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_client.py", line 1877, in post
+    return await self.request(
+                 │    └ <function AsyncClient.request at 0x000002005741ED40>
+                 └ <httpx.AsyncClient object at 0x0000020059C5BFB0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_client.py", line 1559, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+                 │    │    │             │                      └ <httpx._client.UseClientDefault object at 0x0000020056E067B0>
+                 │    │    │             └ <httpx._client.UseClientDefault object at 0x0000020056E067B0>
+                 │    │    └ <Request('POST', 'http://127.0.0.1:570/_get_model_show?model=114514%20%E5%A4%A7%E7%B2%AA%E6%89%8B%E6%9C%BA&model_show=114514%...
+                 │    └ <function AsyncClient.send at 0x000002005741EF20>
+                 └ <httpx.AsyncClient object at 0x0000020059C5BFB0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_client.py", line 1646, in send
+    response = await self._send_handling_auth(
+                     │    └ <function AsyncClient._send_handling_auth at 0x000002005741EFC0>
+                     └ <httpx.AsyncClient object at 0x0000020059C5BFB0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_client.py", line 1674, in _send_handling_auth
+    response = await self._send_handling_redirects(
+                     │    └ <function AsyncClient._send_handling_redirects at 0x000002005741F060>
+                     └ <httpx.AsyncClient object at 0x0000020059C5BFB0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_client.py", line 1711, in _send_handling_redirects
+    response = await self._send_single_request(request)
+                     │    │                    └ <Request('POST', 'http://127.0.0.1:570/_get_model_show?model=114514%20%E5%A4%A7%E7%B2%AA%E6%89%8B%E6%9C%BA&model_show=114514%...
+                     │    └ <function AsyncClient._send_single_request at 0x000002005741F100>
+                     └ <httpx.AsyncClient object at 0x0000020059C5BFB0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_client.py", line 1748, in _send_single_request
+    response = await transport.handle_async_request(request)
+                     │         │                    └ <Request('POST', 'http://127.0.0.1:570/_get_model_show?model=114514%20%E5%A4%A7%E7%B2%AA%E6%89%8B%E6%9C%BA&model_show=114514%...
+                     │         └ <function AsyncHTTPTransport.handle_async_request at 0x000002005741C0E0>
+                     └ <httpx.AsyncHTTPTransport object at 0x0000020059314FE0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_transports\default.py", line 370, in handle_async_request
+    with map_httpcore_exceptions():
+         └ <function map_httpcore_exceptions at 0x00000200569D0680>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+    │    │   │     └ ConnectError(OSError('All connection attempts failed'))
+    │    │   └ <method 'throw' of 'generator' objects>
+    │    └ <generator object map_httpcore_exceptions at 0x0000020059F07E40>
+    └ <contextlib._GeneratorContextManager object at 0x0000020059F804D0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\httpx\_transports\default.py", line 84, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+          │          └ 'All connection attempts failed'
+          └ <class 'httpx.ConnectError'>
+
+httpx.ConnectError: All connection attempts failed
+2024-03-21 17:54:47.478 | INFO     | __main__:group_message_preprocessor:38 - 收到群 859874709 中来自 雨弈(169699201) 的消息: [{'type': 'text', 'data': {'text': 'test'}}]
+2024-03-21 17:54:47.700 | ERROR    | __main__:handle:159 - An error has been caught in function 'handle', process 'MainProcess' (4136), thread 'Thread-1 (start)' (9024):
+Traceback (most recent call last):
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1030, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x00000200564C8180>
+    └ <Thread(Thread-1 (start), started daemon 9024)>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1073, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x00000200564A7E20>
+    └ <Thread(Thread-1 (start), started daemon 9024)>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-1 (start), started daemon 9024)>
+    │    │        │    └ ()
+    │    │        └ <Thread(Thread-1 (start), started daemon 9024)>
+    │    └ <function start at 0x000002005799E520>
+    └ <Thread(Thread-1 (start), started daemon 9024)>
+
+  File "C:\Users\rainc\Documents\HysialX-latest\main.py", line 167, in start
+    ws.run_forever()
+    │  └ <function WebSocketApp.run_forever at 0x0000020056A874C0>
+    └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 604, in run_forever
+    setSock()
+    └ <function WebSocketApp.run_forever.<locals>.setSock at 0x000002005799E7A0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 500, in setSock
+    dispatcher.read(self.sock.sock, read, check)
+    │          │    │    │    │     │     └ <function WebSocketApp.run_forever.<locals>.check at 0x0000020059CDBB00>
+    │          │    │    │    │     └ <function WebSocketApp.run_forever.<locals>.read at 0x0000020059CDB9C0>
+    │          │    │    │    └ <socket.socket fd=1236, family=2, type=1, proto=6, laddr=('127.0.0.1', 13938), raddr=('127.0.0.1', 1696)>
+    │          │    │    └ <websocket._core.WebSocket object at 0x0000020059CEDDF0>
+    │          │    └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+    │          └ <function Dispatcher.read at 0x0000020056A86B60>
+    └ <websocket._app.Dispatcher object at 0x000002005961D970>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 88, in read
+    if not read_callback():
+           └ <function WebSocketApp.run_forever.<locals>.read at 0x0000020059CDB9C0>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 540, in read
+    self._callback(self.on_message, data)
+    │    │         │    │           └ '{"message_type":"group","sub_type":"normal","message_id":90781530,"group_id":859874709,"user_id":169699201,"anonymous":null,...
+    │    │         │    └ <function handle at 0x000002005799E200>
+    │    │         └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+    │    └ <function WebSocketApp._callback at 0x0000020056A876A0>
+    └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+  File "C:\Users\rainc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websocket\_app.py", line 660, in _callback
+    callback(self, *args)
+    │        │      └ ('{"message_type":"group","sub_type":"normal","message_id":90781530,"group_id":859874709,"user_id":169699201,"anonymous":null...
+    │        └ <websocket._app.WebSocketApp object at 0x0000020059EEA690>
+    └ <function handle at 0x000002005799E200>
+
+> File "C:\Users\rainc\Documents\HysialX-latest\main.py", line 159, in handle
+    switch_type(message_type)(bot, event)
+    │           │             │    └ <api.event.Event object at 0x0000020059F82450>
+    │           │             └ <api.bot.Bot object at 0x0000020059F822A0>
+    │           └ 'group'
+    └ <function switch_type at 0x000002005799E0C0>
+
+  File "C:\Users\rainc\Documents\HysialX-latest\main.py", line 75, in group_message_preprocessor
+    if possible_funcs := check_whether_func(sender_message, get_func_pool()):
+                         │                  │               └ <function get_func_pool at 0x0000020057911F80>
+                         │                  └ [{'type': 'text', 'data': {'text': 'test'}}]
+                         └ <function check_whether_func at 0x0000020057845F80>
+
+  File "C:\Users\rainc\Documents\HysialX-latest\script.py", line 40, in check_whether_func
+    if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message)) or ("[CQ:at" in message and func.match_pattern == "on_at")
+                     │                                                │  │                  │                         └ [{'type': 'text', 'data': {'text': 'test'}}]
+                     │                                                │  │                  └ [{'type': 'text', 'data': {'text': 'test'}}]
+                     │                                                │  └ <function search at 0x000002005616F740>
+                     │                                                └ <module 're' from 'C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\\Lib\\r...
+                     └ [{'type': 'text', 'data': {'text': 'test'}}]
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.752.0_x64__qbz5n2kfra8p0\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           │        │        │             └ [{'type': 'text', 'data': {'text': 'test'}}]
+           │        │        └ 0
+           │        └ '搜图(.*)'
+           └ <function _compile at 0x000002005616FD80>
+
+TypeError: expected string or bytes-like object, got 'list'
+2024-03-21 17:54:48.875 | INFO     | __main__:signal_handler:171 - Closed

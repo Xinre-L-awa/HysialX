@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>话痨排行榜</title>
+        <meta name="author" content="Xinre<ancdngding@qq.com>">
+        <style>
+            .container {
+                display: flex; /* 设置父容器为flex布局 */
+                justify-content: center;
+            }
+                
+            .group_element {
+                display: flex;
+                align-items: center;
+                border: 2px lightblue;
+                border-radius: 10px;
+                background-color: #F8F8FF;
+                justify-content: center;
+                margin-right: 10px;
+                transition: box-shadow 0.5s ease;
+            }
+
+            .group_element:hover {
+                border-color: ivory;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .group_element a img {
+                width: 80%;
+                height: 80%;
+                margin-top: 4px;
+                margin-left: 4px;
+                border-radius: 5px;
+            }
+
+            .bottom_element {
+                left: 50%;
+                color: gray;
+                bottom: 5%;
+                position: absolute;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            {% for group in groups %}
+            <div class="group_element">
+                <div>
+                    <a href="/{{ group }}"><img src="http://p.qlogo.cn/gh/{{ group }}/{{ group }}/100"></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="bottom_element">
+            <p>话痨排行榜</p>
+            <p>访问次数:&nbsp;{{ visits_num }}</p>
+        </div>
+    </body>
+</html>
