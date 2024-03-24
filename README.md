@@ -65,6 +65,7 @@ async def test(bot: Bot, event: Event):
 @on_keyword("命令")
 @on_waiting()          # 注册一个等待事件函数
 @on_startup            # 被该装饰器装饰的函数将在插件全部加载完毕后首先运行，且只允许一次
+@on_notice
 @RunInLoop             # 被该装饰器装的是函数将在消息事件循环中循环运行
 @custom(自定义响应函数) # 该装饰器允许用户自定义响应方式(自定义响应函数 仅能够接收一个参数，即接收到的消息)，在示例插件中有实际应用(详见 plugins.Default.main.echo_)，
 ```
