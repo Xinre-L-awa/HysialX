@@ -52,7 +52,7 @@ def import_module(module):
         return module_
     except Exception as e:
         logger.exception(e)
-        logger.error(f"Failed to import plugin {module}")
+        logger.error(f'Failed to import plugin <y>"{module.__name__}"</y>')
         return None
 
 def load_plugins():
