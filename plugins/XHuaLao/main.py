@@ -3,7 +3,7 @@ import time
 
 from api import (
     Bot,
-    Event,
+    GroupMessageEvent,
     RunInLoop,
     on_command,
     DEFAULT_PLUGINS_DATA_PATH
@@ -13,7 +13,7 @@ from api import (
 @RunInLoop
 def GroupMessageStatistics(
     bot: Bot,
-    event: Event
+    event: GroupMessageEvent
 ):
         group_id = event.get_group_id
         sender_id = event.get_user_id
@@ -61,7 +61,7 @@ def GroupMessageStatistics(
 @on_command("话痨排行榜")
 async def PhimosisRanking(
     bot: Bot,
-    event: Event
+    event: GroupMessageEvent
 ):
     t1 = time.time()
     with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupStatistics.json", encoding="utf-8", mode='r') as f:
@@ -74,7 +74,8 @@ async def PhimosisRanking(
     for k, v in data_.items():
         s.append(f"{i}. {v['user_name']}共发送消息 {v['count']} 条")
         i += 1
-    s = '\n'.join(s[:10])
+        if i == 11: break
+    s = '\n'.join(s)
     # s = '\n'.join(s[:10]) + f"\n更多信息请访问 http://{requests.get('https://checkip.amazonaws.com').text.strip()} ~"
     
     await bot.send(event.get_group_id, s)
@@ -83,7 +84,7 @@ async def PhimosisRanking(
 @on_command("话痨排行榜 -a")
 async def DisplayCompleteRanking(
     bot: Bot,
-    event: Event
+    event: GroupMessageEvent
 ):
     t1 = time.time()
     with open(f"{DEFAULT_PLUGINS_DATA_PATH}/GroupStatistics.json", encoding="utf-8", mode='r') as f:
@@ -95,10 +96,6 @@ async def DisplayCompleteRanking(
     s = [f"看看你们多能聊！查个聊天记录都用了{t2 - t1}秒！"]
     for k, v in data_.items():
         s.append(f"{i}. {v['user_name']}共发送消息 {v['count']} 条")
-        i += 1
     s = '\n'.join(s)
     
     await bot.send(event.get_group_id, s)
-
-
-

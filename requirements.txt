@@ -2,6 +2,10 @@ flask
 httpx
 gevent
 loguru
+psutil
 pyyaml
+pydantic
+requests
 termcolor
+websockets
 websocket-client

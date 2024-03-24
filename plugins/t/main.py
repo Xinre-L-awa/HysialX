@@ -2,11 +2,11 @@ import json
 from loguru import logger
 from random import randint
 from datetime import datetime
-from os import path, mkdir, chdir
+from os import path, chdir
 
 from api import (
     Bot,
-    Event,
+    GroupMessageEvent,
     on_command,
     DEFAULT_PLUGINS_DATA_PATH as data_folder
 )
@@ -16,10 +16,10 @@ l = [path.exists(f"{data_folder}/all.json"), path.exists(f"{data_folder}/qian_da
 if False in l:
     logger.warning("数据文件不存在, 即将创建")
     if not l[0]:
-        with open(f"{data_folder}/all.json", 'r+') as f:
+        with open(f"{data_folder}/all.json", 'a') as f:
             f.write("{}")
     if not l[1]:
-        with open(f"{data_folder}/qian_dao_.json", 'r+') as f:
+        with open(f"{data_folder}/qian_dao_.json", 'a') as f:
             f.write("{}")
     logger.success("数据文件创建成功!")
 chdir("plugins")
@@ -33,7 +33,7 @@ def getDate():
 @on_command("个人信息")
 async def DisplayUserPanel(
     bot: Bot,
-    event: Event
+    event: GroupMessageEvent
 ):
     user_id = event.get_user_id
     group_id = event.get_group_id
@@ -58,7 +58,7 @@ async def DisplayUserPanel(
 @on_command("签到")
 async def qian_dao(
     bot: Bot,
-    event: Event
+    event: GroupMessageEvent
 ):
     user_id = event.get_user_id
     group_id = event.get_group_id

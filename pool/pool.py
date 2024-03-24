@@ -106,3 +106,8 @@ class WaitingTaskPool:
     @property
     def get_num_of_funcs(self):
         return len(self.waiting_tasks)
+
+
+class NoticeFuncPool(FuncPool):
+    def __init__(self) -> None:
+        super().__init__()

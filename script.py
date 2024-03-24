@@ -10,8 +10,12 @@ from plugins.manager import FuncMeta, PluginMeta
 if TYPE_CHECKING:
     from pool import FuncPool
 
+
+sys.path.append(os.getcwd())
+
+
 def init(check_files=True):
-    logger.opt(colors=True).info("Hysial Bot is staring...")
+    logger.opt(colors=True).info("Hysial Bot is starting...")
     if check_files:
         logger.opt(colors=True).info("Checking config files...")
 
@@ -33,11 +37,14 @@ def check_whether_func(
     message: str,
     func_pool: "FuncPool"
 ) -> List["FuncMeta"]:
-    return [
-        func 
-        for func in func_pool
-        if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message)) or ("[CQ:at" in message and func.match_pattern == "on_at")
-    ]
+    return sorted(
+        [
+            func 
+            for func in func_pool
+            if (func.cmd and message.startswith(func.cmd)) or (func.regex and re.search(func.regex, message)) or ("[CQ:at" in message and func.match_pattern == "on_at")
+        ],
+        key=lambda x: x.priority
+    )
 
 def import_module(module):
     try:

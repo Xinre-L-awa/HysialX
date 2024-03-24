@@ -1,6 +1,4 @@
 import json
-import httpx
-import asyncio
 import websockets
 
 from log import logger
@@ -41,18 +39,12 @@ class Bot:
 
     async def send(self, uid, message, mode="group"):
         try:
-            # async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
-            #     params = {
-            #         f"{mode}_id": uid,
-            #         "message": message,
-            #     }
-            #     await client.post("/send_msg", params=params)
             async with websockets.connect("ws://127.0.0.1:1696/event/") as websocket:
                 await websocket.send(
                         json.dumps({
                             "action": "send_msg",
                             "params": {
-                                f"{mode}_id": uid,
+                                f"{mode if mode == "group" else "user"}_id": uid,
                                 "message": message
                             }
                         })
@@ -67,9 +59,13 @@ class Bot:
         return await send_(uid, "group", message)
 
     async def call_api(self, api: str, **kwargs):
-        async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
-            params = kwargs
-            await client.post(f"/{api}", params=params)
+        async with websockets.connect("ws://127.0.0.1:1696/event/") as websocket:
+                await websocket.send(
+                        json.dumps({
+                            "action": api,
+                            "params": kwargs
+                        })
+                )
         logger.opt(colors=True).success(f"Succeeded to call api {api}!")
     
     async def input_value(self, user_id: int=None, group_id: int=None):

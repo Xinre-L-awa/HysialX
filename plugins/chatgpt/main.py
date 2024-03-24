@@ -1,12 +1,15 @@
+import httpx
 import psutil
 from openai import OpenAI
 
+
 from api import (
     Bot,
-    Event,
+    MessageEvent,
     At,
     on_at,
-    on_command
+    on_command,
+    get_func_pool
 )
 
 client = OpenAI(
@@ -23,7 +26,6 @@ def gpt_35_api(messages: list):
         messages (list): 完整的对话消息
     """
     completion = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
-    print(completion.choices[0].message.content)
     return completion.choices[0].message.content
 
 def gpt_35_api_stream(messages: list):
@@ -42,10 +44,37 @@ def gpt_35_api_stream(messages: list):
             print(chunk.choices[0].delta.content, end="")
 
 
-@on_at()
-async def chat(
+current_mode = "answer_question"
+
+@on_command("/switch")
+async def switch_(
     bot: Bot,
-    event: Event
+    event: MessageEvent
+):
+    global current_mode
+
+    func1 = None
+    for func in get_func_pool():
+        if func.name == "answer_question":
+            func1 = func
+    
+    if current_mode == "answer_question":
+        func1.set_priority(3)
+        current_mode = "chat"
+    else:
+        func1.set_priority(1)
+        current_mode = "answer_question"
+    
+    await bot.send(
+        event.get_group_id,
+        f"切换成功，当前为 {current_mode} 模式"
+    )
+
+
+@on_at(block=True)
+async def answer_question(
+    bot: Bot,
+    event: MessageEvent
 ):
     await bot.send(
         event.get_group_id,
@@ -53,10 +82,23 @@ async def chat(
     )
 
 
+@on_at(block=True, priority=2)
+async def chat(
+    bot: Bot,
+    event: MessageEvent
+):
+    async with httpx.AsyncClient() as client:
+        res = await client.get(f"http://api.qingyunke.com/api.php?key=free&appid=0&msg={event.get_message}")
+        await bot.send(
+            event.get_group_id,
+            f"{At(event.get_user_id)} {res.json()["content"]}"
+        )
+
+
 @on_command("服务器状态")
 async def get_server_info(
     bot: Bot,
-    event: Event
+    event: MessageEvent
 ):
     psutil.cpu_percent(None)
 

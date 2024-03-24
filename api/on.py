@@ -1,23 +1,32 @@
-from typing import Any, Callable, Optional, TYPE_CHECKING
+"""
+所有响应方式均在本模块定义
 
-from pool import FuncPool, WaitingTaskPool
+`block`的值决定是否阻断
+"""
+
+from typing import Callable, Optional, TYPE_CHECKING, Union
+
+from pool import FuncPool, WaitingTaskPool, NoticeFuncPool
 from plugins.manager import FuncMeta, WaitingFuncMeta, PluginPool
 
 if TYPE_CHECKING:
-    from api import Bot, Event
+    from .bot import Bot
+    from .event import GroupMessageEvent, PrivateMessageEvent
 
-func_pool: FuncPool = FuncPool() # 全局插件函数池
+func_pool: FuncPool = FuncPool() # 全局插件消息类函数池
 plugin_pool: PluginPool = PluginPool() # 全局插件池
+notic_func_pool: NoticeFuncPool = NoticeFuncPool() # 全局插件通知事件类函数池
 waiting_task_pool: WaitingTaskPool = WaitingTaskPool() #全局等待任务池
 
 
 def get_func_pool() -> FuncPool: return func_pool
 def get_plugin_pool() -> PluginPool: return plugin_pool
+def get_notice_func_pool() -> NoticeFuncPool: return notic_func_pool
 def get_waiting_task_pool() -> WaitingTaskPool: return waiting_task_pool
 
 
-def on(func: Callable[["Bot", "Event"], None] | FuncMeta | WaitingFuncMeta, pattern: str | None=None, **kwargs):
-    return get_func_pool().add_func(func if isinstance(func, FuncMeta) else FuncMeta(func, pattern, **kwargs))
+def on(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None] | FuncMeta | WaitingFuncMeta, pattern: str | None=None, block=False, priority: int=1, **kwargs):
+    return get_func_pool().add_func(func if isinstance(func, FuncMeta) else FuncMeta(func, pattern, block, priority, **kwargs))
 
 
 # class BaseOn:
@@ -39,15 +48,17 @@ def on(func: Callable[["Bot", "Event"], None] | FuncMeta | WaitingFuncMeta, patt
 #         )
 
 
-def on_at(qq: int | None=None):
+def on_at(qq: int | None=None, block: bool=True, priority: int=1):
     """
     qq 为指定要检测的 qq号, 默认为机器人本身
     """
-    def wrapper(func: Callable[["Bot", "Event"], None]):
+    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         return on(
             func,
             "on_at",
-            qq=qq
+            qq=qq,
+            block=block,
+            priority=priority
         )
     return wrapper
 
@@ -66,7 +77,7 @@ def on_command(cmd: Optional[str]) -> FuncMeta:
         DESCRIPTION.
 
     """
-    def wrapper(func: Callable[["Bot", "Event"], None]):
+    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         return on(
             func,
             "on_command",
@@ -76,7 +87,7 @@ def on_command(cmd: Optional[str]) -> FuncMeta:
 
 
 def on_keyword(cmd: Optional[str]=None):
-    def wrapper(func: Callable[["Bot", "Event"], None]):
+    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         return on(
             func,
             "on_keyword",
@@ -85,8 +96,14 @@ def on_keyword(cmd: Optional[str]=None):
     return wrapper
 
 
+def on_notice(notice_type, block: bool=False, priority: int=1):
+    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
+        return get_notice_func_pool().add_func(func if isinstance(func, FuncMeta) else FuncMeta(func, "on_notice", block, priority, notice_type=notice_type.value))
+    return wrapper
+
+
 def on_regex(regex: Optional[str]=None):
-    def wrapper(func: Callable[["Bot", "Event"], None]):
+    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         return on(
             func,
             "on_regex",
@@ -103,7 +120,7 @@ class on_waiting:
         self.regex = regex
         self.response_method = response_method
 
-    def __call__(self, func):
+    def __call__(self, func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         self.func = func
         on(
             WaitingFuncMeta(
@@ -116,18 +133,13 @@ class on_waiting:
         return self
 
     def add_child_func(self, child_func):
-        # print(child_func.__name__, 1)
         self.func.child_func = child_func
     
     def then(self, cmd: Optional[str]=None, regex: Optional[str]=None, response_method: Callable=None):
-        # print("test")
-        def wrapper(func: Callable[["Bot", "Event"], None]):
+        def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
             meta: WaitingFuncMeta
             for meta in get_func_pool():
-                # print("test")
-                # print(meta, self.func)
                 if meta == self.func:
-                    # print(meta)
                     meta.child_func = func
             return on(
                 WaitingFuncMeta(
@@ -159,7 +171,7 @@ def RunInLoop(func):
 
 
 def custom(response_method: Callable):
-    def wrapper(func: Callable[["Bot", "Event"], None]):
+    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         return on(
             func, 
             "custom",

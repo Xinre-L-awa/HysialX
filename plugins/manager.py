@@ -1,7 +1,7 @@
-from typing import List, Callable, Optional, TYPE_CHECKING
+from typing import List, Callable, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from api import Bot, Event
+    from api import Bot, GroupMessageEvent, PrivateMessageEvent
 
 
 class FuncMeta:
@@ -9,24 +9,30 @@ class FuncMeta:
     at: int
     cmd: Optional[str]
     _func: Callable
+    block: bool = False
     regex: Optional[str]
+    priority: int = 1       # priority 值越小，函数优先级越高，默认为1
     aliases: Optional[set]
     child_func: Optional[Callable]
+    notice_type: Optional[int]
     match_pattern: Optional[str]
     custom_response_method: Callable[[str], str] | None
 
-    def __init__(self, func: Callable[["Bot", "Event"], None], pattern, **kwargs) -> None:
+    def __init__(self, func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None], pattern, block: bool=False, priority: int=1, **kwargs) -> None:
         self.x = True
         self._func = func
+        self.block = block
+        self.priority = priority
         self.match_pattern = pattern
 
         self.at = kwargs.get("at")
         self.cmd = kwargs.get("cmd")
         self.regex = kwargs.get("regex")
         self.aliases = kwargs.get("aliases")
+        self.notice_type = kwargs.get("notice_type")
         self.custom_response_method = kwargs.get("custom_response_method")
     
-    def __call__(self, bot: Optional["Bot"]=None, event: Optional["Event"]=None, isDebug=False) -> None:
+    def __call__(self, bot: Optional["Bot"]=None, event: Optional[Union["GroupMessageEvent", "PrivateMessageEvent"]]=None, isDebug=False) -> None:
         if self.match_pattern == "on_startup":
             return self._func()
         elif bot == None and event == None: return
@@ -54,6 +60,9 @@ class FuncMeta:
     @property
     def name(self) -> str:
         return self._func.__name__
+    
+    def set_priority(self, priority: int):
+        self.priority = priority
 
 
 class WaitingFuncMeta(FuncMeta):

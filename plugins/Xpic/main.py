@@ -1,10 +1,10 @@
 from loguru import logger
-from random import choice, random
+from random import choice
 
 import wallhavenapi
 from api import (
     Bot,
-    Event,
+    MessageEvent,
     on_regex
 )
 
@@ -14,7 +14,7 @@ api_key = "nBINp1gNmmkwL3lgLLjJmXZKiqyqxgqj"
 @on_regex(r"搜图(.*)")
 async def get_pic(
     bot: Bot,
-    event: Event
+    event: MessageEvent
 ):
     para = event.get_message
 
