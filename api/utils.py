@@ -1,5 +1,4 @@
-import json
-import websockets
+import httpx
 from log import logger
 from pool import FuncPool
 from plugins.manager import FuncMeta
@@ -9,8 +8,11 @@ from pool import WaitingFuncMeta, WaitingTask
 from typing import List, Dict, Union, Callable
 
 
+to_shutdown: bool = False
+
+
 @logger.catch
-def run_func(func: "FuncMeta", *args, isDebug=False) -> int:
+def run_func(func: "FuncMeta" | Callable, *args, isDebug=False) -> int:
     """
     封装函数运行，丰富运行参数
     """
@@ -24,7 +26,7 @@ def run_func(func: "FuncMeta", *args, isDebug=False) -> int:
             else:
                 logger.debug(f"{func.__name__} 触发了 {finish}")
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         exit_code = -1
     if isDebug:
         if isinstance(func, FuncMeta):
@@ -44,10 +46,11 @@ async def await_run_func(func: "FuncMeta", *args, isDebug=False) -> int:
     try:
         res = await func(*args)
     except FinishException as finish:
+        print(f"{func.name} 触发了 {finish}")
         if isDebug:
             logger.debug(f"{func.name} 触发了 {finish}")
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         exit_code = -1
     if isDebug:
         logger.debug(f"{func.name} 函数执行完毕")
@@ -56,16 +59,22 @@ async def await_run_func(func: "FuncMeta", *args, isDebug=False) -> int:
 
 
 async def set_device(name: str):
-    async with websockets.connect("ws://127.0.0.1:1696/event/") as websocket:
-            await websocket.send(
-                    json.dumps({
-                        "action": "_get_model_show",
-                        "params": {
-                            "model": name,
-                            "model_show": name
-                        }
-                    })
-            )
+    # async with websockets.connect("ws://127.0.0.1:1696/event/") as websocket:
+    #     await websocket.send(
+    #             json.dumps({
+    #                 "action": "_get_model_show",
+    #                 "params": {
+    #                     "model": name,
+    #                     "model_show": name
+    #                 }
+    #             }
+    #         )
+    #     )
+    params = {
+        "model": name,
+        "model_show": name
+    }
+    httpx.post("http://127.0.0.1:9920/send_msg", json=params)
     logger.opt(colors=True).success(f'设置机型 {name} 成功!')
 
 
@@ -130,6 +139,10 @@ def AnalyseCQCode(cq: str) -> List[Dict[str, str]]:
                 stack = []
                 continue
     return res
+
+def shutdown():
+    global to_shutdown
+    to_shutdown = True
 
 
 def CreateOnWaitingTask(func: Callable, user_id: int, group_id: int, type_: str=None):
