@@ -1,3 +1,4 @@
+from os import popen
 from typing import List, Callable, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
@@ -7,7 +8,7 @@ if TYPE_CHECKING:
 class FuncMeta:
     x: bool     # 标记该函数类型是否特殊（区别于 on_command, on_regex, on_keyword, on_waiting）
     at: int
-    cmd: Optional[str]
+    cmd: List[str]
     _func: Callable
     block: bool = False
     regex: Optional[str]
@@ -18,7 +19,7 @@ class FuncMeta:
     match_pattern: Optional[str]
     custom_response_method: Callable[[str], str] | None
 
-    def __init__(self, func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None], pattern, block: bool=False, priority: int=1, **kwargs) -> None:
+    def __init__(self, func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None], pattern, block: bool=False, priority: int=1, cmd: List[str]=[], **kwargs) -> None:
         self.x = True
         self._func = func
         self.block = block
@@ -26,7 +27,7 @@ class FuncMeta:
         self.match_pattern = pattern
 
         self.at = kwargs.get("at")
-        self.cmd = kwargs.get("cmd")
+        self.cmd = cmd
         self.regex = kwargs.get("regex")
         self.aliases = kwargs.get("aliases")
         self.notice_type = kwargs.get("notice_type")
@@ -178,3 +179,19 @@ class PluginPool:
     @property
     def get_num_of_plugins(self):
         return len(self.plugins)
+
+
+class ScheduledTask:
+    def __init__(self, task: str | Callable, task_type: str="timely", frequency: int=0, fixed_execute_time: str="", disposable: bool=False) -> None:
+        self.task = task
+        self.task_type = task_type
+        self.frequency = frequency
+        self.disposable = disposable
+        self.last_execution_time = ""
+        self.fixed_execute_time = fixed_execute_time
+
+    def execute(self):
+        if self.task_type == "shell":
+            return popen(self.task)
+        else:
+            self.task()
