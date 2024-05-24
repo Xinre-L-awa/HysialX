@@ -1,5 +1,5 @@
 from typing import List
-from plugins.manager import FuncMeta, WaitingFuncMeta
+from plugins.manager import FuncMeta, WaitingFuncMeta, ScheduledTask
 
 
 class FuncPool:
@@ -111,3 +111,37 @@ class WaitingTaskPool:
 class NoticeFuncPool(FuncPool):
     def __init__(self) -> None:
         super().__init__()
+
+
+class ScheduledTaskPool:
+    tasks: List[ScheduledTask]
+    cur_index: int
+    
+    def __init__(self) -> None:
+        self.tasks = []
+        self.cur_index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.cur_index < len(self.tasks):
+            res = self.tasks[self.cur_index]
+            self.cur_index += 1
+            return res
+        else:
+            self.cur_index = 0
+            raise StopIteration
+    
+    def add_task(self, task):
+        self.tasks.insert(-1, task)
+
+    def add_tasks(self, tasks: List["ScheduledTask"]):
+        self.tasks += tasks
+    
+    def pop_task(self, task: "ScheduledTask"):
+        self.tasks.remove(task)
+    
+    def pop_tasks(self, tasks: List["ScheduledTask"]):
+        for task in tasks:
+            self.tasks.remove(task)
