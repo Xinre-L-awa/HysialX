@@ -4,7 +4,7 @@ __详细教程请访问[我的主页](https://xinre.top/2023/09/02/hysialx-%E4%B
 
 一个简易的qq机器人框架，可自行编写插件实现诸多功能
 __本框架可对接所有实现 OneBot 标准的服务端__
-# go-cqhttp配置
+# go-cqhttp配置（暂时弃用）
 您需要在config.yml中添加
 ```yml
 - ws:
@@ -30,6 +30,21 @@ __本框架可对接所有实现 OneBot 标准的服务端__
       "Host": "127.0.0.1",
       "Port": 1696,
       "Suffix": "/event",
+      "ReconnectInterval": 5000,
+      "HeartBeatInterval": 5000,
+      "AccessToken": ""
+},
+{
+      "Type": "Http",
+      "Host": "*",
+      "Port": 9920,
+      "AccessToken": ""
+},
+{
+      "Type": "ForwardWebSocket",
+      "Host": "127.0.0.1",
+      "Port": 6700,
+      "Suffix": "/",
       "ReconnectInterval": 5000,
       "HeartBeatInterval": 5000,
       "AccessToken": ""
