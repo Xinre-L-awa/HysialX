@@ -9,6 +9,7 @@ import sys
 import json
 import signal
 import asyncio
+import datetime
 import websocket
 from threading import Thread
 from api import (
@@ -24,6 +25,7 @@ from api import (
     get_func_pool,
     get_notice_func_pool,
     get_waiting_task_pool,
+    get_scheduled_task_pool,
     getExpectedFuncs
 )
 from pool import WaitingTask
@@ -33,7 +35,6 @@ from script import (
     load_plugins,
     check_whether_func
 )
-from htyping import NoticeEvents
 from plugins.manager import WaitingFuncMeta
 
 
@@ -52,9 +53,9 @@ def message_preprocessor(bot: Bot, event: GroupMessageEvent | PrivateMessageEven
         
     for func in customFuncs:
         try:
-            if msg := func.custom_response_method(sender_message) and isinstance(event, func._func.__annotations__["event"]):
+            if func.custom_response_method(sender_message) and isinstance(event, func._func.__annotations__["event"]):
                 logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
-                event.set_message(msg)
+                event.set_message(sender_message)
                 asyncio.run(
                     await_run_func(
                         func,
@@ -115,7 +116,7 @@ def message_preprocessor(bot: Bot, event: GroupMessageEvent | PrivateMessageEven
                     )
                 )
                 if func.block: break
-            elif func.match_pattern == "on_command" and sender_message == func.cmd:
+            elif func.match_pattern == "on_command" and sender_message in func.cmd:
                 logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
                 asyncio.run(
                     await_run_func(
@@ -124,7 +125,7 @@ def message_preprocessor(bot: Bot, event: GroupMessageEvent | PrivateMessageEven
                     )
                 )
                 if func.block: break
-            elif func.match_pattern == "on_waiting" and (sender_message == func.cmd or func.custom_response_method(sender_message)):
+            elif func.match_pattern == "on_waiting" and (sender_message == func.cmd or func.custom_response_method(sender_message)) and func.cmd != "JUSTCHILD":
                 logger.opt(colors=True).info(f"触发 <y>{func.name}</y>")
                 func: WaitingFuncMeta
                 get_waiting_task_pool().add_task(WaitingTask(func.child_func, user_id=event.get_user_id, group_id=event.get_group_id))
@@ -170,7 +171,7 @@ def switch_type(type_: str):
 
 BOT_ID: int = None
 
-@logger.catch
+
 def handle(ws, message):
     _ = json.loads(message)
     if _.get("meta_event_type") == "lifecycle":
@@ -193,7 +194,6 @@ def handle(ws, message):
         elif event.get_message_type == "private":
             event = event.ToPrivateMessageEvent()
     elif post_type == "notice":
-        print(_)
         event = NoticeEvent.model_validate(_)
     
     switch_type(post_type)(bot, event)
@@ -205,9 +205,28 @@ def start():
         on_message=handle
     )
     ws.run_forever()
-    
+
+isAlive = True
+
+def handle_scheduled_tasks():
+    sub_time = lambda t1, t2: (
+        datetime.datetime.strptime(t1,"%Y-%m-%d %H:%M:%S") - datetime.datetime.strptime(t2,"%Y-%m-%d %H:%M:%S")
+    ).seconds
+    now = lambda : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    while isAlive:
+        toBeRemoved = []
+        for task in get_scheduled_task_pool():
+            if task.last_execution_time == "" or sub_time(task.last_execution_time, now()) or now() == task.fixed_execute_time:
+                task.execute()
+                task.last_execution_time = now()
+                if task.disposable: toBeRemoved.append(task)
+        get_scheduled_task_pool().pop_tasks(toBeRemoved)
+
 
 def signal_handler(signal, frame):
+    global isAlive
+    isAlive = False
     logger.opt(colors=True).info("Closed")
     sys.exit(0)
 
@@ -223,20 +242,18 @@ if __name__ == "__main__":
 
     [run_func(func) for func in onstartupFuncs]
 
-    # func: WaitingFuncMeta
-    # for func in get_func_pool():
-    #     if isinstance(func, WaitingFuncMeta) and func.isChildFunc:
-    #         func()
-
     logger.info("Trying to connect go-cqhttp...")
     try:
         t = Thread(target=start)
         t.daemon = True
         t.start()
+
+        scheduled_task_t = Thread(target=handle_scheduled_tasks)
+        scheduled_task_t.daemon = True
+        scheduled_task_t.start()
     except Exception as e:
         logger.exception(e)
         logger.opt(colors=True).error(e)
-        
     
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
