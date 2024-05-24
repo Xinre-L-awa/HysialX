@@ -1,4 +1,5 @@
 import json
+import httpx
 import websockets
 
 from log import logger
@@ -8,22 +9,11 @@ from plugins.manager import WaitingFuncMeta
 
 async def send_(uid, mode, message):
     try:
-        # async with httpx.AsyncClient(base_url="http://127.0.0.1:570") as client:
-        #     params = {
-        #         f"{mode}_id": uid,
-        #         "message": message,
-        #     }
-        #     await client.post("/send_msg", params=params)
-        
-        async def send(uid, mode, message):
-            async with websockets.connect("http://127.0.0.1:1696/event") as websocket:
-                await websocket.send(
-                    {
-                        f"{mode}_id": uid,
-                        "message": message,
-                    }
-                )
-        await send(uid, mode, message)
+        params = {
+            f'{mode if mode == "group" else "user"}_id': uid,
+            "message": message
+        }
+        httpx.post("http://127.0.0.1:9920/send_msg",json=params)
         logger.opt(colors=True).success(f'发送消息 "{message}" 到群 {uid} 成功')
     except Exception as e:
         logger.warning(e)
@@ -39,16 +29,11 @@ class Bot:
 
     async def send(self, uid, message, mode="group"):
         try:
-            async with websockets.connect("ws://127.0.0.1:1696/event/") as websocket:
-                await websocket.send(
-                        json.dumps({
-                            "action": "send_msg",
-                            "params": {
-                                f"{mode if mode == "group" else "user"}_id": uid,
-                                "message": message
-                            }
-                        })
-                )
+            params = {
+                f'{mode if mode == "group" else "user"}_id': uid,
+                "message": message
+            }
+            httpx.post("http://127.0.0.1:9920/send_msg", json=params)
             logger.opt(colors=True).success(f'发送消息 "{message}" 到群 {uid} 成功')
         except Exception as e:
             logger.exception(e)
@@ -59,13 +44,11 @@ class Bot:
         return await send_(uid, "group", message)
 
     async def call_api(self, api: str, **kwargs):
-        async with websockets.connect("ws://127.0.0.1:1696/event/") as websocket:
-                await websocket.send(
-                        json.dumps({
-                            "action": api,
-                            "params": kwargs
-                        })
-                )
+        params = {
+                        "action": api,
+                        "params": kwargs
+                    }
+        await httpx.AsyncClient("http://127.0.0.1:9920", params=params)
         logger.opt(colors=True).success(f"Succeeded to call api {api}!")
     
     async def input_value(self, user_id: int=None, group_id: int=None):
