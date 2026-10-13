@@ -454,4 +454,3 @@ def load_config(path: Optional[str] = DEFAULT_CONFIG_PATH, *, create: bool = Tru
     if not cfg.source.startswith(("SnowLuma", "自动发现")):
         cfg.source = ", ".join(filter(None, [f"配置文件 {cfg.config_path}" if cfg.config_path else "默认值"]))
     return cfg
-

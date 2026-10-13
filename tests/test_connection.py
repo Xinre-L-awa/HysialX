@@ -52,7 +52,7 @@ async def wait_until(predicate, timeout: float = 3.0) -> bool:
 
 async def _case() -> int:
     runner = CaseRunner()
-    mock = await MockSnowLuma().start()
+    mock = await MockSnowLuma(ws_port=0, http_port=0).start()          # 端口 0：让系统分配，避免固定端口占用
     conn = OneBotConnection(config_for(mock))
     try:
         # ============================================== A 组：正向 WS + 动作（13 项）

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+
+# 测试/静态检查缓存
+.pytest_cache/
+.ruff_cache/
+
+# 日志（loguru 的相对 sink 曾经在 plugins/ 下建过 logs/）
+*.log
+logs/
+plugins/logs/
+
+# 本地备份与临时文件（DataForXPlugin/ 本身是插件数据，要提交，别忽略）
+DataForXPlugin.bak/
+*.tmpbak
+
+# 本地草稿与临时脚本
+.workbuddy/
+learn.py
+m.py
+
+# 虚拟环境 / 编辑器
+.venv/
+venv/
+.vscode/
+.idea/

@@ -1,11 +1,23 @@
-flask
-httpx
-gevent
-loguru
-psutil
-pyyaml
-pydantic
-requests
-termcolor
-websockets
-websocket-client
+# HysialX 运行依赖（Python >= 3.10）
+# 安装：pip install -r requirements.txt
+#
+# 版本下限不是装饰：代码用到 pydantic v2 的 ConfigDict/model_validate、
+# websockets 的新 asyncio API（websockets.asyncio.*、additional_headers），
+# 装成 pydantic 1.x / websockets 13 会直接起不来。
+
+# --- 框架本体 ---
+httpx>=0.27
+websockets>=14.0
+pydantic>=2.0
+loguru>=0.7
+termcolor>=2.0
+
+# --- 插件依赖（缺一个，对应插件会被 script.load_plugins 静默跳过）---
+psutil>=5.9            # plugins/Defalut：服务器状态
+flask>=2.0             # plugins/XHuaLao：1145 网页看板
+selenium>=4.0          # plugins/XHuaLao：排行榜截图（还需要本机 chromedriver）
+requests>=2.28         # plugins/Xpic + wallhavenapi
+openai>=1.0            # plugins/chatgpt
+
+# --- 开发/测试 ---
+pytest>=8.0

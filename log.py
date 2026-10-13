@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from loguru import logger
 from typing import TYPE_CHECKING
 
@@ -30,4 +31,13 @@ logger_id = logger.add(
     filter=default_filter,
     format=default_format
 )
-logger.add("./logs/HysialLog.log", rotation="114.514 KB")
+
+# 文件 sink 必须用**绝对路径**：相对路径 "./logs/..." 是按 cwd 解析的，
+# 一旦某个插件在 import 期 chdir（历史上 plugins/t 就这么干过），就会在 plugins/ 下
+# 造出一个 plugins/logs/，还会被 load_plugins 当成插件目录去 import。
+_LOG_DIR = Path(__file__).resolve().parent / "logs"
+try:
+    _LOG_DIR.mkdir(parents=True, exist_ok=True)
+    logger.add(_LOG_DIR / "HysialLog.log", rotation="114.514 KB", encoding="utf-8")
+except OSError:                      # 只读部署等场景：写不了文件也还能用 stdout
+    logger.warning(f"无法创建日志目录 {_LOG_DIR}，本进程只输出到 stdout")

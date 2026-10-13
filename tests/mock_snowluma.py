@@ -18,18 +18,14 @@ from urllib.parse import parse_qs, urlsplit
 
 import websockets
 from websockets.exceptions import ConnectionClosed
-from websockets.asyncio.client import ClientConnection      # 反向模式用
-from websockets.asyncio.connection import Connection        # _pump 的公共标注
 from websockets.asyncio.server import ServerConnection      # 正向服务端
 from websockets.http11 import Request
 
 
 HTTP_PORT     = 18080
 WS_PORT       = 18081
-REVERSE_PORT  = 18082
 WS_TOKEN      = "testtoken"
 HTTP_TOKEN    = "httptoken"
-REVERSE_TOKEN = "revtoken"
 SELF_ID       = 999
 NICKNAME      = "Mock"
 
@@ -95,6 +91,8 @@ class MockSnowLuma:
             process_request=self._check_ws_token,
             max_size=None
         )
+        # 支持传 0：让系统分配端口再读回来，避免固定端口在并发/本机占用时 flaky
+        self.ws_port = self._ws_server.sockets[0].getsockname()[1]
         self._start_http()
         ws_hint = f"?access_token={self.ws_token}" if self.ws_token else "（不校验 token）"
         http_hint = f"Bearer {self.http_token}" if self.http_token else "（不校验 token）"
@@ -182,6 +180,8 @@ class MockSnowLuma:
                     return envelope(request, status="failed", retcode=100,
                                     message="risk", wording="账号可能被风控")
                 return envelope(request, data={"message_id": 1})
+            case "delete_msg":
+                return envelope(request, data=None)
             case "echo_less":                    # 故障注入：不回填 echo
                 response = envelope(request, data={"message_id": 1})
                 response.pop("echo", None)
@@ -247,6 +247,7 @@ class MockSnowLuma:
                 return
 
         self._http_server = ThreadingHTTPServer(("127.0.0.1", self.http_port), Handler)
+        self.http_port = self._http_server.server_address[1]      # 支持 port=0：读回真实端口
         self._http_server.daemon_threads = True
         threading.Thread(target=self._http_server.serve_forever, daemon=True).start()
 

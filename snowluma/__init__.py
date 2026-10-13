@@ -10,8 +10,9 @@ from .config import (
     write_default_config as write_default_config,
 )
 from .connection import (
-    Connection as Connection,
-    OneBotConnection as OneBotConnection
+    Channel as Channel,
+    OneBotConnection as OneBotConnection,
+    LocalEchoConnection as LocalEchoConnection
 )
 from .exception import (
     ActionFailed as ActionFailed,

@@ -16,17 +16,16 @@ import httpx
 import websockets
 from websockets.exceptions import ConnectionClosed, InvalidHandshake, InvalidStatus
 from websockets.asyncio.client import ClientConnection      # 反向模式用
-from websockets.asyncio.connection import Connection        # _pump 的公共标注
 from websockets.asyncio.server import ServerConnection      # 正向服务端
 from websockets.http11 import Request
 
 from loguru import logger
 
 from .config import SnowLumaConfig
-from .segment import MessageLike, message_format_of, message_to_payload
+from .segment import MessageLike, message_format_of, message_to_payload, normalize_cq
 from .exception import ActionFailed, ConnectionUnavailable
 
-__all__ = ["Channel", "OneBotConnection"]
+__all__ = ["Channel", "OneBotConnection", "LocalEchoConnection"]
 
 _MAX_MESSAGE_SIZE = 16 * 1024 * 1024    # 消息中可能包含base64图片
 _EVENT_QUEUE_SIZE = 1024
@@ -603,3 +602,29 @@ class OneBotConnection:
         finally:
             self._unregister(channel)
             logger.warning(f"反向 WebSocket 连接已断开: {channel.remote}")
+
+class LocalEchoConnection:
+    """离线调试用：所有动作只打印日志，不产生网络请求"""
+
+    def __init__(self, self_id: int = 10000, nickname: str = "DebugBot",
+                 message_format: str = "array") -> None:
+        self.self_id = self_id
+        self.nickname = nickname
+        self.message_format_detected = message_format
+        self.login_info = {"user_id": self_id, "nickname": nickname}
+        self.connected = True
+        self.calls: list[tuple[str, dict]] = []
+
+    async def call_action(self, action, *, transport=None, timeout=None, **params):
+        self.calls.append((action, params))
+        logger.opt(colors=True).info(f"[调试] 动作 <y>{action}</y> 参数 {params}")
+        return {"get_login_info": {"user_id": self.self_id, "nickname": self.nickname},
+                "get_version_info": {"app_name": "SnowLuma(Debug)", "protocol_version": "v11"},
+                "get_status": {"online": True, "good": True}}.get(action, {})
+
+    async def send_message(self, message, *, message_type=None, user_id=None,
+                           group_id=None, auto_escape=False):
+        target = group_id if message_type == "group" else user_id
+        logger.opt(colors=True).success(f"[调试] 发送到 {target}: {normalize_cq(message)}")
+        return {"message_id": 0}
+

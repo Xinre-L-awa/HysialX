@@ -4,6 +4,7 @@
 `block`的值决定是否阻断
 """
 
+from enum import Enum
 from typing import Callable, Optional, TYPE_CHECKING, Union, List
 
 from pool import FuncPool, WaitingTaskPool, NoticeFuncPool, ScheduledTaskPool
@@ -11,22 +12,24 @@ from plugins.manager import FuncMeta, WaitingFuncMeta, PluginPool, ScheduledTask
 
 if TYPE_CHECKING:
     from .bot import Bot
-    from .event import GroupMessageEvent, PrivateMessageEvent
+    from .event import GroupMessageEvent, PrivateMessageEvent, NoticeEvent, RequestEvent
 
 func_pool: FuncPool = FuncPool() # 全局插件消息类函数池
 plugin_pool: PluginPool = PluginPool() # 全局插件池
 notic_func_pool: NoticeFuncPool = NoticeFuncPool() # 全局插件通知事件类函数池
+request_func_pool: NoticeFuncPool = NoticeFuncPool() # 全局插件请求事件类函数池
 waiting_task_pool: WaitingTaskPool = WaitingTaskPool() #全局等待任务池
 scheduled_task_pool: ScheduledTaskPool = ScheduledTaskPool() # 全局计划任务池
 
 def get_func_pool() -> FuncPool: return func_pool
 def get_plugin_pool() -> PluginPool: return plugin_pool
 def get_notice_func_pool() -> NoticeFuncPool: return notic_func_pool
+def get_request_func_pool() -> NoticeFuncPool: return request_func_pool
 def get_waiting_task_pool() -> WaitingTaskPool: return waiting_task_pool
 def get_scheduled_task_pool() -> ScheduledTaskPool: return scheduled_task_pool
 
-def on(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None] | FuncMeta | WaitingFuncMeta, pattern: str | None=None, cmd: List[str]=[], block=False, priority: int=1, **kwargs):
-    return get_func_pool().add_func(func if isinstance(func, FuncMeta) else FuncMeta(func, pattern, block, priority, cmd=cmd, **kwargs))
+def on(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None] | FuncMeta | WaitingFuncMeta, pattern: str | None=None, cmd: List[str]=None, block=False, priority: int=1, **kwargs):
+    return get_func_pool().add_func(func if isinstance(func, FuncMeta) else FuncMeta(func, pattern, block, priority, cmd=cmd or [], **kwargs))
 
 
 # class BaseOn:ss
@@ -63,13 +66,15 @@ def on_at(qq: Optional[int]=None, block: bool=True, priority: int=1):
     return wrapper
 
 
-def on_command(cmd: str, alias: List[str]=[]) -> FuncMeta:
+def on_command(cmd: str, alias: List[str]=None) -> FuncMeta:
     """
 
     Parameters
     ----------
     cmd : str | List[str]
         响应命令
+    alias : List[str]
+        别名（可选）
 
     Returns
     -------
@@ -81,26 +86,44 @@ def on_command(cmd: str, alias: List[str]=[]) -> FuncMeta:
         return on(
             func,
             "on_command",
-            cmd=[cmd] + alias
+            cmd=[cmd] + list(alias or [])       # 别用可变默认值 alias=[]
         )
     return wrapper
 
 
-def on_keyword(cmd: Optional[str]=None):
+def on_keyword(cmd: str):
+    """关键字响应器：匹配方式是 `message.startswith(cmd)`（见 script.check_whether_func）。
+
+    旧签名 `cmd: Optional[str]=None` 会注册一个永远匹配不上的响应器，这里直接报错。
+    另外 `@on_at` 场景下前导空格会被 main.py 先去掉，所以关键字照常能命中。
+    """
+    if not cmd:
+        raise TypeError("on_keyword 需要关键字，例如 @on_keyword('天气')")
     def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
         return on(
             func,
             "on_keyword",
-            cmd=cmd
+            cmd=[cmd]
         )
     return wrapper
 
+def _type_value(type_): return type_.value if isinstance(type_, Enum) else type_
 
 def on_notice(notice_type, block: bool=False, priority: int=1):
-    def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
-        return get_notice_func_pool().add_func(func if isinstance(func, FuncMeta) else FuncMeta(func, "on_notice", block, priority, notice_type=notice_type.value))
+    def wrapper(func: Callable[["Bot", Union["NoticeEvent"]], None]):
+        return get_notice_func_pool().add_func(
+            func if isinstance(func, FuncMeta) else 
+            FuncMeta(func, "on_notice", block, priority, notice_type=_type_value(notice_type))
+        )
     return wrapper
 
+def on_request(request_type, block=False, priority: int=1):
+    def wrapper(func: Callable[["Bot", Union["RequestEvent"]], None]):
+        return get_request_func_pool().add_func(
+            func if isinstance(func, FuncMeta) else
+            FuncMeta(func, "on_request", block, priority, request_type=_type_value(request_type))
+        )
+    return wrapper
 
 def on_regex(regex: Optional[str]=None):
     def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
@@ -118,6 +141,8 @@ class on_waiting:
     def __init__(self,cmd: Optional[str]=None, regex: Optional[str]=None, response_method: Callable=None) -> None:
         self.cmd = cmd
         self.regex = regex
+        # 注意：这里的 response_method 是**匹配函数**（str -> bool），不是 WaitingTask 那个响应方式列表。
+        # 它必须落到 FuncMeta.custom_response_method 上，否则 main.py 读不到（旧代码就是这么静默失效的）。
         self.response_method = response_method
 
     def __call__(self, func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
@@ -127,7 +152,7 @@ class on_waiting:
                 func,
                 cmd=self.cmd,
                 regex=self.regex,
-                response_method=self.response_method
+                custom_response_method=self.response_method
             )
         )
         return self
@@ -139,15 +164,17 @@ class on_waiting:
         def wrapper(func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None]):
             meta: WaitingFuncMeta
             for meta in get_func_pool():
-                if meta == self.func:
-                    meta.child_func = func
+                # 旧写法 `meta == self.func` 是 FuncMeta 与裸函数的身份比较，恒为假 → 子函数永远挂不上
+                if getattr(meta, "_func", None) == self.func:
+                    meta.child_func = WaitingFuncMeta(func)
+                    break
             return on(
                 WaitingFuncMeta(
                     func,
                     cmd=cmd,
                     regex=regex,
                     parrend_func=self.func,
-                    response_method=response_method,
+                    custom_response_method=response_method,
                     isChildFunc=True
                 )
             )

@@ -1,0 +1,33 @@
+{
+  "_readme": [
+    "HysialX 的 SnowLuma(OneBot v11) 连接配置。",
+    "空字符串 / null / 0 表示「自动」：优先用 snowluma_dir 里发现的值，其次用内置默认值。",
+    "snowluma_dir 指向 SnowLuma 安装目录（含 config/onebot.json 的那一层）。",
+    "mode: forward(只主动连) / reverse(只收反向) / both。",
+    "api_transport: auto(有 WS 走 WS，没有才走 HTTP) / ws / http。",
+    "message_format: auto / array / string。"
+  ],
+  "snowluma_dir": "",
+  "account": null,
+  "mode": "both",
+  "forward_url": "",
+  "forward_token": "",
+  "http_base": "",
+  "http_path": "",
+  "http_token": "",
+  "reverse": {
+    "enabled": true,
+    "host": "",
+    "port": null,
+    "path": "",
+    "access_token": ""
+  },
+  "message_format": "auto",
+  "api_transport": "auto",
+  "request_timeout": 10.0,
+  "reconnect_interval": 5.0,
+  "ping_interval": 30.0,
+  "ping_timeout": 30.0,
+  "event_workers": 4,
+  "device_name": ""
+}

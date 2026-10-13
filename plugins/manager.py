@@ -1,8 +1,22 @@
 from os import popen
+import subprocess
 from typing import List, Callable, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from api import Bot, GroupMessageEvent, PrivateMessageEvent
+
+
+def _func_name(func) -> str:
+    """取函数名。
+
+    `_func` 可能是被包过一层的 WaitingFuncMeta（`add_child_func` / `bot.input_value` 路径），
+    它没有 `__name__`，直接访问会 AttributeError（旧实现在 debug.py 的 pool 命令里就会炸）。
+    """
+    if func is None:
+        return "无"
+    return (getattr(func, "name", None)
+            or getattr(func, "__name__", None)
+            or str(func))
 
 
 class FuncMeta:
@@ -16,10 +30,19 @@ class FuncMeta:
     aliases: Optional[set]
     child_func: Optional[Callable]
     notice_type: Optional[int]
+    request_type: Optional[Union[int, str]]
     match_pattern: Optional[str]
     custom_response_method: Callable[[str], str] | None
 
-    def __init__(self, func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None], pattern, block: bool=False, priority: int=1, cmd: List[str]=[], **kwargs) -> None:
+    def __init__(
+        self, 
+        func: Callable[["Bot", Union["GroupMessageEvent", "PrivateMessageEvent"]], None], 
+        pattern, 
+        block: bool=False, 
+        priority: int=1, 
+        cmd: List[str]=None, 
+        **kwargs
+    ) -> None:
         self.x = True
         self._func = func
         self.block = block
@@ -27,10 +50,12 @@ class FuncMeta:
         self.match_pattern = pattern
 
         self.at = kwargs.get("at")
-        self.cmd = cmd
+        # 别用可变默认值：所有实例会共享同一个 list，任何人 append 都会污染全部响应器
+        self.cmd = [] if cmd is None else cmd
         self.regex = kwargs.get("regex")
         self.aliases = kwargs.get("aliases")
         self.notice_type = kwargs.get("notice_type")
+        self.request_type = kwargs.get("request_type")
         self.custom_response_method = kwargs.get("custom_response_method")
     
     def __call__(self, bot: Optional["Bot"]=None, event: Optional[Union["GroupMessageEvent", "PrivateMessageEvent"]]=None, isDebug=False) -> None:
@@ -42,7 +67,7 @@ class FuncMeta:
     
     def __str__(self) -> str:
         return (
-            f"函数名: {self._func.__name__}\n"
+            f"函数名: {self.name}\n"
             f"响应方式: {self.match_pattern}\n"
             f"调用命令: {self.cmd}\n"
             f"正则匹配: {self.regex}\n"
@@ -50,17 +75,11 @@ class FuncMeta:
         )
 
     def __repr__(self) -> str:
-        return (
-            f"函数名: {self._func.__name__}\n"
-            f"响应方式: {self.match_pattern}\n"
-            f"调用命令: {self.cmd}\n"
-            f"正则匹配: {self.regex}\n"
-            f"别名: {self.aliases}"
-        )
+        return self.__str__()
 
     @property
     def name(self) -> str:
-        return self._func.__name__
+        return _func_name(self._func)
     
     def set_priority(self, priority: int):
         self.priority = priority
@@ -87,23 +106,16 @@ class WaitingFuncMeta(FuncMeta):
     
     def __str__(self) -> str:
         return (
-            f"函数名: {self._func.__name__}\n"
+            f"函数名: {self.name}\n"
             f"响应方式: {self.match_pattern}\n"
             f"调用命令: {self.cmd}\n"
             f"正则匹配: {self.regex}\n"
-            f"父函数: {self.parrent_func.__name__ if self.parrent_func else '无'}, 子函数: {self.child_func if self.child_func else '无'}\n"
+            f"父函数: {_func_name(self.parrent_func)}, 子函数: {_func_name(self.child_func) if self.child_func else '无'}\n"
             f"别名: {self.aliases}"
         )
 
     def __repr__(self) -> str:
-        return (
-            f"函数名: {self._func.__name__}\n"
-            f"响应方式: {self.match_pattern}\n"
-            f"调用命令: {self.cmd}\n"
-            f"正则匹配: {self.regex}\n"
-            f"父函数: {self.parrent_func.__name__ if self.parrent_func else '无'}, 子函数: {self.child_func if self.child_func else '无'}\n"
-            f"别名: {self.aliases}"
-        )
+        return self.__str__()
 
 
 class PluginMeta:
@@ -122,7 +134,9 @@ class PluginMeta:
         Description=None
     ):
         self.PluginName = Name
-        self.PluginFuncs = Funcs
+        # load_plugins 的兜底就是 PluginMeta(module.__name__)（Funcs=None），
+        # 之后插件再调 add_func 时不能炸
+        self.PluginFuncs = [] if Funcs is None else Funcs
         self.PluginUsage = Usage
         self.PluginAuthor = Author
         self.PluginDescription = Description
@@ -139,12 +153,7 @@ class PluginMeta:
         )
     
     def __repr__(self) -> str:
-        return (
-            f"插件名称: {self.PluginName}\n"
-            f"插件用法: {self.PluginUsage}\n"
-            f"插件作者: {self.PluginAuthor}\n"
-            f"插件描述: {self.PluginDescription}"
-        )
+        return self.__str__()
 
 
 class PluginPool:
@@ -156,7 +165,7 @@ class PluginPool:
         self.cur_index = 0
 
     def __iter__(self):
-        return self
+        return iter(self.plugins)        # 独立迭代器，避免提前 break 留下半截游标
     
     def __next__(self):
         if self.cur_index < self.get_num_of_plugins:
@@ -192,6 +201,7 @@ class ScheduledTask:
 
     def execute(self):
         if self.task_type == "shell":
-            return popen(self.task)
-        else:
-            self.task()
+            # shell 任务按设计就是要走 shell（命令来自配置，不是用户消息）；
+            # 用 subprocess 替掉 os.popen：能拿到退出码，也不会泄漏管道文件描述符
+            return subprocess.run(self.task, shell=True, capture_output=True, text=True)
+        return self.task()
